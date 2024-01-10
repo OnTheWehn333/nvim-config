@@ -1,8 +1,19 @@
 local lsp_zero = require('lsp-zero')
+local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+local lsp_format_on_save = function(bufnr)
+    vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+    vim.api.nvim_create_autocmd('BufWritePre', {
+        group = augroup,
+        buffer = bufnr,
+        callback = function()
+            vim.lsp.buf.format()
+        end,
+    })
+end
 
 lsp_zero.on_attach(function(client, bufnr)
     local function set(mode, keys, action, description)
-        local opts = {buffer = bufnr, remap = false, desc = description}
+        local opts = { buffer = bufnr, remap = false, desc = description }
         vim.keymap.set(mode, keys, action, opts)
     end
 
@@ -16,11 +27,13 @@ lsp_zero.on_attach(function(client, bufnr)
     set("n", "<leader>vrr", function() vim.lsp.buf.references() end, 'References')
     set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, 'Rename')
     set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, 'Signature Help')
+
+    lsp_format_on_save(bufnr)
 end)
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
-    ensure_installed = {'tsserver', 'rust_analyzer'},
+    ensure_installed = { 'tsserver', 'rust_analyzer' },
     handlers = {
         lsp_zero.default_setup,
         lua_ls = function()
@@ -31,15 +44,15 @@ require('mason-lspconfig').setup({
 })
 
 local cmp = require('cmp')
-local cmp_select = {behavior = cmp.SelectBehavior.Select}
+local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
 cmp.setup({
     sources = {
-        {name = 'path'},
-        {name = 'nvim_lsp'},
-        {name = 'nvim_lua'},
-        {name = 'luasnip', keyword_length = 2},
-        {name = 'buffer', keyword_length = 3},
+        { name = 'path' },
+        { name = 'nvim_lsp' },
+        { name = 'nvim_lua' },
+        { name = 'luasnip', keyword_length = 2 },
+        { name = 'buffer',  keyword_length = 3 },
     },
     formatting = lsp_zero.cmp_format(),
     mapping = cmp.mapping.preset.insert({

@@ -1,4 +1,5 @@
 vim.g.mapleader = " "
+vim.g.terminal_emulator='zsh'
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then

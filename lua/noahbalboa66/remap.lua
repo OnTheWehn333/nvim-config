@@ -30,7 +30,7 @@ set("n", "Q", "<nop>")
 set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
 
 set("n", "<C-k>", "<cmd>cnext<CR>zz", { desc = 'Quick List \'c\' Next'})
-set("n", "<C-k>", "<cmd>cprev<CR>zz", { desc = 'Quick List \'c\' Prev'})
+set("n", "<C-j>", "<cmd>cprev<CR>zz", { desc = 'Quick List \'c\' Prev'})
 set("n", "<leader>k", "<cmd>lnext<CR>zz", { desc = 'Quick List \'l\' Next'})
 set("n", "<leader>j", "<cmd>lprev<CR>zz", { desc = 'Quick List \'l\' Prev'})
 

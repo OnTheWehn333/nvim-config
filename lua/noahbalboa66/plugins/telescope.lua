@@ -1,5 +1,5 @@
 return {
-    'nvim-telescope/telescope.nvim', 
+    'nvim-telescope/telescope.nvim',
     tag = '0.1.5',
     dependencies = {
         'nvim-lua/plenary.nvim',
@@ -14,7 +14,7 @@ return {
         },
 
     },
-    config = function() 
+    config = function()
         pcall(require('telescope').load_extension, 'fzf')
 
         local set = vim.keymap.set
@@ -32,10 +32,9 @@ return {
             })
         end, { desc = '[/] Fuzzily search in current buffer' })
 
-
         set('n', '<leader>so', require('noahbalboa66.utils').telescope_live_grep_open_files, { desc = '[S]earch [O]pen Files' })
         set('n', '<leader>ss', require('telescope.builtin').builtin, { desc = '[S]earch [S]elect Telescope' })
-        set('n', '<leader>sgf', require('telescope.builtin').git_files, { desc = '[S]earch [G]it [F]iles' })
+        set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'search [G]it [F]iles' })
         set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
         set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
         set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
