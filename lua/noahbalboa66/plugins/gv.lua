@@ -4,7 +4,7 @@ return {
         'tpope/vim-fugitive'
     },
     config = function()
-        vim.keymap.set("n", "<leader>gl", ":GV<cr>", { desc = "Look at Git Commit Histor" })
+        vim.keymap.set("n", "<leader>gh", ":GV<cr>", { desc = "[G]it Commit [H]istory" })
     end
 
 }
