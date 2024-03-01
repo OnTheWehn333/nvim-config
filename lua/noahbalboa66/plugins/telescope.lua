@@ -14,8 +14,15 @@ return {
         },
 
     },
+    -- TODO: Get only_cwd to work
+    extensions = {
+        recent_files = {
+            only_cwd = true,
+        }
+    },
     config = function()
         pcall(require('telescope').load_extension, 'fzf')
+        require("telescope").load_extension("recent_files")
 
         local set = vim.keymap.set
         -- Telescope
@@ -32,7 +39,8 @@ return {
             })
         end, { desc = '[/] Fuzzily search in current buffer' })
 
-        set('n', '<leader>so', require('noahbalboa66.utils').telescope_live_grep_open_files, { desc = '[S]earch [O]pen Files' })
+        set('n', '<leader>so', require('noahbalboa66.utils').telescope_live_grep_open_files,
+            { desc = '[S]earch [O]pen Files' })
         set('n', '<leader>ss', require('telescope.builtin').builtin, { desc = '[S]earch [S]elect Telescope' })
         set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'search [G]it [F]iles' })
         set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
@@ -41,8 +49,7 @@ return {
         set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
         set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
         set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-        set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
-
-
+        set('n', '<leader>sc', require('telescope.builtin').resume, { desc = '[S]earch [C]ontinue' })
+        set('n', '<leader>sr', require('telescope').extensions.recent_files.pick, { desc = '[S]earch [R]ecent' })
     end
 }
