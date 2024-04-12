@@ -1,6 +1,6 @@
 local set = vim.keymap.set
 
---From the GOAT Prime
+--From the GOAT Primeagen
 set("n", "<leader>ex", vim.cmd.Ex, { desc = 'Go into Ex' })
 
 set("v", "J", ":m '>+1<CR>gv=gv", { desc = 'Move Selected Down' })
