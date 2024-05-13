@@ -56,5 +56,12 @@ return {
         set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
         set('n', '<leader>sc', require('telescope.builtin').resume, { desc = '[S]earch [C]ontinue' })
         set('n', '<leader>sr', require('telescope').extensions.recent_files.pick, { desc = '[S]earch [R]ecent' })
+
+        -- Pomo
+        require("telescope").load_extension "pomodori"
+
+        vim.keymap.set("n", "<leader>pt", function()
+            require("telescope").extensions.pomodori.timers()
+        end, { desc = "Manage Pomodori Timers" })
     end
 }
