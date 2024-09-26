@@ -13,5 +13,12 @@ return {
     init = function()
         -- Your DBUI configuration
         vim.g.db_ui_use_nerd_fonts = 1
+        vim.g.db_ui_table_helpers = {
+            postgresql = {
+                Count = 'select count(*) from "{table}"',
+                Delete = '--drop table "{table}"',
+                Truncate = '--truncate table "{table}"'
+            }
+        }
     end,
 }
