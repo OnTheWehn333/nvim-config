@@ -37,3 +37,48 @@ set("n", "<leader>j", "<cmd>lprev<CR>zz", { desc = 'Quick List \'l\' Prev' })
 set("n", "<leader>rw", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
     { desc = 'Replace all words under the current one' })
 set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = 'Make file executable' })
+
+
+set('n', '<leader>wh',
+    function()
+        local total_height = vim.o.lines
+        local current_height = vim.api.nvim_win_get_height(0)
+        local isSmall = (current_height <= math.floor(total_height * .5))
+        if isSmall then
+            vim.cmd('resize ' .. math.floor(total_height * 0.75))
+        else
+            vim.cmd('resize ' .. math.floor(total_height * 0.25))
+        end
+    end,
+    { desc = 'toggle resize to 1/4:3/4 vertically' }
+)
+
+set('n', '<leader>h=',
+    function()
+        local total_height = vim.o.lines
+        vim.cmd('resize ' .. math.floor(total_height * 0.5))
+    end,
+    { desc = 'resize to 1/2 vertically' }
+)
+
+set('n', '<leader>wv',
+    function()
+        local total_width = vim.o.columns
+        local current_width = vim.api.nvim_win_get_width(0)
+        local isSmall = (current_width <= math.floor(total_width * .5))
+        if isSmall then
+            vim.cmd('vertical resize ' .. math.floor(total_width * 0.75))
+        else
+            vim.cmd('vertical resize ' .. math.floor(total_width * 0.25))
+        end
+    end,
+    { desc = 'toggle resize to 1/4:3/4 horizontally' }
+)
+
+set('n', '<leader>w=',
+    function()
+        local total_width = vim.o.columns
+        vim.cmd('vertical resize ' .. math.floor(total_width * 0.5))
+    end,
+    { desc = 'resize to 1/2 horizontally' }
+)

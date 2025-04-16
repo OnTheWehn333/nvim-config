@@ -2,6 +2,11 @@ return {
     'nvim-telescope/telescope.nvim',
     tag = '0.1.5',
     dependencies = {
+        "isak102/telescope-git-file-history.nvim",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "tpope/vim-fugitive"
+        },
         'nvim-lua/plenary.nvim',
         {
             'nvim-telescope/telescope-fzf-native.nvim',
