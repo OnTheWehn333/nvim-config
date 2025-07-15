@@ -21,7 +21,8 @@ return {
         formatters_by_ft = {
             lua = { "stylua" },
             python = { "isort", "black" },
-            javascript = { "prettierd", "prettier", stop_after_first = true },
+            javascript = {},
+            typescript = {},
         },
         -- Set default options
         default_format_opts = {
@@ -42,11 +43,6 @@ return {
     end,
     config = function()
         require("conform").setup({
-            formatters_by_ft = {
-                -- Conform will run the first available formatter
-                javascript = { "eslint" },
-                typescript = { "eslint" }
-            },
             format_on_save = {
                 -- These options will be passed to conform.format()
                 timeout_ms = 500,

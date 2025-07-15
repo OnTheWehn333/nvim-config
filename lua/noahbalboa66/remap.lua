@@ -36,7 +36,7 @@ set("n", "<leader>j", "<cmd>lprev<CR>zz", { desc = 'Quick List \'l\' Prev' })
 
 set("n", "<leader>rw", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
     { desc = 'Replace all words under the current one' })
-set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = 'Make file executable' })
+set("n", "<leader>xf", "<cmd>!chmod +x %<CR>", { silent = true, desc = 'Make file executable' })
 
 
 set('n', '<leader>wh',

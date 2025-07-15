@@ -28,7 +28,8 @@ return {
     config = function()
         pcall(require('telescope').load_extension, 'fzf')
         require("telescope").load_extension("recent_files")
-        local trouble = require("trouble.sources.telescope")
+        local actions = require("telescope.actions")
+        local open_with_trouble = require("trouble.sources.telescope").open
 
         local set = vim.keymap.set
         -- Telescope
@@ -53,7 +54,7 @@ return {
         set('n', '<leader>sF', function()
             require('telescope.builtin').find_files({ no_ignore = true, hidden = true })
         end, { desc = '[S]earch hidden and ignored [F]iles' })
-        vim.keymap.set("n", "<leader>sT", trouble.open, { desc = 'Open Trouble with Telescope' })
+        vim.keymap.set("n", "<leader>sT", open_with_trouble, { desc = 'Open Trouble with Telescope' })
         set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
         set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
         set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
