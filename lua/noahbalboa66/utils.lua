@@ -1,5 +1,5 @@
 local M = {}
-local telescope_builtin = require("telescope.builtin")
+-- local telescope_builtin = require("telescope.builtin")
 
 -- Telescope live_grep in git root
 -- Function to find the git root directory based on the current buffer's path
@@ -27,19 +27,19 @@ end
 
 -- Custom live_grep function to search in git root
 function M.live_grep_git_root()
-	local git_root = M.find_git_root()
-	if git_root then
-		telescope_builtin.live_grep({
-			search_dirs = { git_root },
-		})
-	end
+	-- local git_root = M.find_git_root()
+	-- if git_root then
+	-- 	telescope_builtin.live_grep({
+	-- 		search_dirs = { git_root },
+	-- 	})
+	-- end
 end
 
 function M.telescope_live_grep_open_files()
-	telescope_builtin.live_grep({
-		grep_open_files = true,
-		prompt_title = "Live Grep in Open Files",
-	})
+	-- telescope_builtin.live_grep({
+	-- 	grep_open_files = true,
+	-- 	prompt_title = "Live Grep in Open Files",
+	-- })
 end
 
 return M
