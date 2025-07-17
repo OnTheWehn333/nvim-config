@@ -1,3 +1,3 @@
 return {
-    "smartpde/telescope-recent-files"
+	"smartpde/telescope-recent-files",
 }

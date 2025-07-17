@@ -35,7 +35,4 @@ vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = "140"
 
-vim.cmd(':command! -nargs=* W w')
-
--- For obsidian characters
-vim.opt.conceallevel = 2
+vim.cmd(":command! -nargs=* W w")

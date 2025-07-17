@@ -1,5 +1,5 @@
 vim.filetype.add({
-    extension = {
-        fga = "yaml",
-    },
+	extension = {
+		fga = "yaml",
+	},
 })

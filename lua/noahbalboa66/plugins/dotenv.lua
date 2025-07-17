@@ -1,4 +1,4 @@
 return {
-    "tpope/vim-dotenv",
-    lazy = false, -- Load the plugin immediately
+	"tpope/vim-dotenv",
+	lazy = false, -- Load the plugin immediately
 }

@@ -1,4 +1,4 @@
 return {
-    "gennaro-tedesco/nvim-jqx",
-    ft = { "json", "yaml" },
+	"gennaro-tedesco/nvim-jqx",
+	ft = { "json", "yaml" },
 }
