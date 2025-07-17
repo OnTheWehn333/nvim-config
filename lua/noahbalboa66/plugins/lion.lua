@@ -1,3 +1,3 @@
 return {
-    "tommcdo/vim-lion"
+	"tommcdo/vim-lion",
 }
