@@ -22,6 +22,7 @@ return {
 			lua = { "stylua" },
 			python = { "isort", "black" },
 			cs = { "csharpier" },
+			nix = { "alejandra" },
 			javascript = {},
 			typescript = {},
 		},
@@ -36,6 +37,7 @@ return {
 			shfmt = {
 				prepend_args = { "-i", "2" },
 			},
+			alejandra = {},
 			-- csharpier = {
 			-- 	command = "dotnet",
 			-- 	args = { "csharpier", "--write-stdout" },

@@ -52,7 +52,7 @@ vim.lsp.config("*", {
 -- Mason setup
 mason.setup()
 mason_lspconfig.setup({
-	ensure_installed = { "lua_ls", "jsonls", "omnisharp" },
+	ensure_installed = { "lua_ls", "jsonls", "omnisharp", "nil_ls" },
 })
 local pid = vim.fn.getpid()
 local omnisharp_bin = "/home/noahbalboa66/.local/share/nvim/mason/packages/omnisharp/OmniSharp" -- Replace with your actual path
