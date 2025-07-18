@@ -22,6 +22,7 @@ return {
 		scratch = { enabled = true },
 		scroll = { enabled = true },
 		statuscolumn = { enabled = true },
+		terminal = { enabled = true },
 		words = { enabled = true },
 		zen = { enabled = true },
 	},
@@ -314,13 +315,6 @@ return {
 				Snacks.notifier.hide()
 			end,
 			desc = "Dismiss All Notifications",
-		},
-		{
-			"<c-/>",
-			function()
-				Snacks.terminal()
-			end,
-			desc = "Toggle Terminal",
 		},
 		{
 			"<c-_>",
