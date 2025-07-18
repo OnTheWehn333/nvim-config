@@ -5,7 +5,7 @@ return {
 		"nvim-tree/nvim-web-devicons", -- optional
 	},
 	config = function()
-		require("lspsaga").setup({ lightbulb = {} })
+		require("lspsaga").setup({ lightbulb = { sign = false } })
 
 		vim.keymap.set("n", "<leader>lc", "<cmd>Lspsaga code_action<cr>", { desc = "Code Action" })
 		vim.keymap.set("n", "<leader>lo", "<cmd>Lspsaga outline<cr>", { desc = "Outline" })
