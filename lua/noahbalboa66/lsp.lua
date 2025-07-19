@@ -2,11 +2,9 @@
 
 local mason = require("mason")
 local mason_lspconfig = require("mason-lspconfig")
-local lspconfig = require("lspconfig")
-local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
 -- Capabilities
--- local capabilities = cmp_nvim_lsp.default_capabilities()
+local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 -- Format on save
 local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
@@ -43,7 +41,7 @@ local function on_attach(client, bufnr)
 end
 
 vim.lsp.config("*", {
-	capabilities = vim.lsp.protocol.make_client_capabilities(),
+	capabilities = capabilities,
 	on_attach = on_attach,
 })
 -- Mason setup
@@ -52,6 +50,7 @@ mason_lspconfig.setup({
 	ensure_installed = { "lua_ls", "jsonls", "omnisharp", "nil_ls" },
 })
 local pid = vim.fn.getpid()
+--TODO: I think this is broken on mac, don't hardcode and find a better way to get omnisharp bin.
 local omnisharp_bin = "/home/noahbalboa66/.local/share/nvim/mason/packages/omnisharp/OmniSharp" -- Replace with your actual path
 
 vim.lsp.config("omnisharp", {
@@ -64,42 +63,4 @@ vim.lsp.config("ts_ls", {
 		client.server_capabilities.documentFormattingProvider = false
 		client.server_capabilities.documentRangeFormattingProvider = false
 	end,
-})
-
--- nvim-cmp config
-
-local cmp = require("cmp")
-
-cmp.setup({
-	sources = {
-		{ name = "nvim_lsp" },
-		{ name = "path" },
-		{ name = "buffer", keyword_length = 3 },
-		{ name = "luasnip", keyword_length = 2 },
-	},
-	mapping = cmp.mapping.preset.insert({
-		["<C-p>"] = cmp.mapping.select_prev_item(),
-		["<C-n>"] = cmp.mapping.select_next_item(),
-		["<C-y>"] = cmp.mapping.confirm({ select = true }),
-		["<C-a>"] = cmp.mapping.complete(),
-	}),
-	formatting = {
-		format = function(entry, vim_item)
-			vim_item.menu = ({
-				nvim_lsp = "[LSP]",
-				buffer = "[Buf]",
-				path = "[Path]",
-				luasnip = "[Snip]",
-			})[entry.source.name]
-			return vim_item
-		end,
-	},
-})
-
--- Optional: filetype specific
-cmp.setup.filetype("sql", {
-	sources = {
-		{ name = "vim-dadbod-completion" },
-		{ name = "buffer" },
-	},
 })
