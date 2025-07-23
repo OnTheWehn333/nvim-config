@@ -1,0 +1,13 @@
+{
+    "contributes": {
+        "snippets": [
+            {
+                "language": [
+                    "cs"
+                ],
+                "path": "./cs.json"
+            }
+        ]
+    },
+    "name": "custom-snippets"
+}

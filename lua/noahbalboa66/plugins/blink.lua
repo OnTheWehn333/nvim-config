@@ -24,6 +24,11 @@ return {
 						name = "Dadbod",
 						module = "vim_dadbod_completion.blink",
 					},
+					snippets = {
+						opts = {
+							search_paths = { vim.fn.stdpath("config") .. "/snippets" },
+						},
+					},
 				},
 				per_filetype = {
 					sql = { "dadbod", "buffer" },
@@ -48,6 +53,9 @@ return {
 					auto_show = true,
 					auto_show_delay_ms = 200,
 				},
+			},
+			signature = {
+				enabled = true,
 			},
 		},
 		opts_extend = { "sources.default" },
