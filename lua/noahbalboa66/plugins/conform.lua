@@ -25,6 +25,7 @@ return {
 			nix = { "alejandra" },
 			javascript = {},
 			typescript = {},
+			xml = { "xmlformatter" },
 		},
 		-- Set default options
 		default_format_opts = {
