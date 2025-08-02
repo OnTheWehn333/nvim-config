@@ -25,6 +25,7 @@ return {
 			nix = { "alejandra" },
 			javascript = {},
 			typescript = {},
+			yaml = { "yamlfmt" },
 			xml = { "xmlformatter" },
 		},
 		-- Set default options
