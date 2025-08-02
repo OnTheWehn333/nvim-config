@@ -31,7 +31,7 @@ return {
 					},
 				},
 				per_filetype = {
-					sql = { "dadbod", "buffer" },
+					sql = { "dadbod", "buffer", "snippets" },
 				},
 			},
 			cmdline = {
