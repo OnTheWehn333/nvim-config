@@ -1,3 +1,38 @@
+local project_picker_confirm = function(picker, item)
+	-- 1. close UI immediately
+	picker:close()
+	-- 2. guard empty pick
+	if not (item and item.file) then
+		return
+	end
+	local root = item.file
+
+	-- 3. reuse a tab already at this root
+	for _, tp in ipairs(vim.api.nvim_list_tabpages()) do
+		if vim.fn.getcwd(-1, tp) == root then
+			return vim.api.nvim_set_current_tabpage(tp)
+		end
+	end
+
+	-- 4. open new tab if you’ve already got real buffers loaded
+	local need_tab = false
+	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_loaded(bufnr) and vim.api.nvim_buf_get_name(bufnr) ~= "" then
+			need_tab = true
+			break
+		end
+	end
+	if need_tab then
+		vim.cmd("tabnew")
+	end
+
+	-- 5. tab-local cd into project
+	vim.cmd("tcd " .. vim.fn.fnameescape(root))
+
+	-- 6. kick off the next picker in that project
+	require("snacks").picker.smart()
+end
+
 return {
 	"folke/snacks.nvim",
 	priority = 1000,
@@ -15,7 +50,16 @@ return {
 		indent = { enabled = true },
 		input = { enabled = true },
 		lazygit = { enabled = true },
-		picker = { enabled = true },
+		picker = {
+			enabled = true,
+			sources = {
+				projects = {
+					-- This guy is awesome, exactly what I was looking for
+					-- https://www.reddit.com/r/neovim/comments/1jxctk7/project_management_with_snackspicker/
+					confirm = project_picker_confirm,
+				},
+			},
+		},
 		notifier = { enabled = true },
 		quickfile = { enabled = true },
 		scope = { enabled = true },
@@ -350,6 +394,14 @@ return {
 				Snacks.gitbrowse()
 			end,
 			desc = "Git Browse",
+			mode = { "n", "v" },
+		},
+		{
+			"<leader>gL",
+			function()
+				Snacks.picker.git_log_line()
+			end,
+			desc = "Git Log",
 			mode = { "n", "v" },
 		},
 		{

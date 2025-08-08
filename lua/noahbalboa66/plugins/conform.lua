@@ -2,17 +2,17 @@ return {
 	"stevearc/conform.nvim",
 	event = { "BufWritePre" },
 	cmd = { "ConformInfo" },
-	-- keys = {
-	-- 	{
-	-- 		-- Customize or remove this keymap to your liking
-	-- 		"<leader>f",
-	-- 		function()
-	-- 			require("conform").format({ async = true, lsp_format = "fallback" })
-	-- 		end,
-	-- 		mode = "",
-	-- 		desc = "Format buffer",
-	-- 	},
-	-- },
+	keys = {
+		{
+			-- Customize or remove this keymap to your liking
+			"<leader>f",
+			function()
+				require("conform").format({ async = true, lsp_format = "fallback" })
+			end,
+			mode = "",
+			desc = "Format buffer",
+		},
+	},
 	-- This will provide type hinting with LuaLS
 	---@module "conform"
 	---@type conform.setupOpts
@@ -27,6 +27,7 @@ return {
 			typescript = {},
 			yaml = { "yamlfmt" },
 			xml = { "xmlformatter" },
+			http = { "kulala-fmt" },
 		},
 		-- Set default options
 		default_format_opts = {
@@ -40,10 +41,21 @@ return {
 				prepend_args = { "-i", "2" },
 			},
 			alejandra = {},
-			-- csharpier = {
-			-- 	command = "dotnet",
-			-- 	args = { "csharpier", "--write-stdout" },
-			-- },
+			kulala = {
+				command = "kulala-fmt",
+				args = { "format", "$FILENAME" },
+				stdin = false,
+			},
+			log_level = vim.log.levels.DEBUG,
+			csharpier = {
+				command = "csharpier",
+				args = {
+					"format", -- the sub-command
+					"--stdin-path",
+					"$FILENAME", -- give it the file name (for config/ignore)
+					"--write-stdout", -- don’t overwrite on disk, pipe formatted code back
+				},
+			},
 		},
 	},
 	init = function()

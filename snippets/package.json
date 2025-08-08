@@ -6,6 +6,18 @@
                     "cs"
                 ],
                 "path": "./cs.json"
+            },
+            {
+                "language": [
+                    "sql"
+                ],
+                "path": "./sql.json"
+            },
+            {
+                "path": "./http.json",
+                "language": [
+                    "http"
+                ]
             }
         ]
     },

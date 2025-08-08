@@ -1,0 +1,6 @@
+{
+    "postgis": {
+        "prefix": "postgis",
+        "body": "CREATE EXTENSION IF NOT EXISTS postgis;"
+    }
+}

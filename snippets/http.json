@@ -1,0 +1,13 @@
+{
+    "get_request": {
+        "prefix": "request",
+        "body": [
+            "### ${1:request_name}",
+            "",
+            "GET /api/${2:endpoint} HTTP/1.1",
+            "Authorization: Bearer {{token}}",
+            "Content-Type: {{contentType}}",
+            "Host: {{baseUrl}}"
+        ]
+    }
+}

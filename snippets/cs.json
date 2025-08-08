@@ -1,0 +1,81 @@
+{
+    "doc": {
+        "body": [
+            "/// <summary>",
+            "/// ${1:Brief description of what the method does.}",
+            "/// </summary>",
+            "/// <param name=\"${2:paramName}\">${3:Description of the parameter.}</param>",
+            "/// <returns>${4:Description of what is returned.}</returns>",
+            "/// <exception cref=\"${5:ArgumentException}\">${6:When this exception is thrown.}</exception>"
+        ],
+        "prefix": "doc"
+    },
+    "mkclass": {
+        "description": "Class from filename without Handler suffix",
+        "body": [
+            "public class ${TM_FILENAME_BASE/Handler\\$///} {",
+            "\t$0",
+            "}"
+        ],
+        "prefix": "mkclass"
+    },
+    "SimpleQuery": {
+        "body": [
+            "using CSharpFunctionalExtensions;",
+            "using MediatR;",
+            "using ${1:Project}.Infrastructure;",
+            "using ${1:Project}.Application;",
+            "using ${1:Project}.Dto;",
+            "using ${1:Project}.Infrastructure;",
+            "",
+            "namespace ${1:Project}.Application.Query;",
+            "",
+            "internal sealed class $TM_FILENAME_BASE(",
+            "    IMediator _mediator",
+            ") : IRequestHandler<${2:CommandRequest}, Result<${3:MapTo}, IErrorResponse>>",
+            "{",
+            "    public async Task<Result<${3:MapTo}, IErrorResponse>> Handle(",
+            "        ${2:CommandRequest} request,",
+            "        CancellationToken cancellationToken",
+            "    )",
+            "    {",
+            "        return Result.Success<${3:MapTo}, IErrorResponse>();",
+            "    }",
+            "}"
+        ],
+        "prefix": "simple_query"
+    },
+    "4interface": {
+        "body": [
+            "namespace ${1:};",
+            "",
+            "public interface $TM_FILENAME_BASE",
+            "{",
+            "    ${2:}",
+            "}"
+        ],
+        "prefix": "4interface"
+    },
+    "mapper": {
+        "body": [
+            "using CSharpFunctionalExtensions;",
+            "using MediatR;",
+            "using ${1:Project}.Dto;",
+            "using ${1:Project}.Infrastructure;",
+            "using Serilog;",
+            "",
+            "namespace ${1:Project}.Application.Query;",
+            "",
+            "public class $TM_FILENAME_BASE : IRequest<Result<${2:OutType}, IErrorResponse>>",
+            "{",
+            "    ${3:}",
+            "    public $TM_FILENAME_BASE()",
+            "    {",
+            "        Log.ForContext<$TM_FILENAME_BASE>().Debug(\"{object} created\", nameof($TM_FILENAME_BASE));",
+            "        ${4:}",
+            "    }",
+            "} "
+        ],
+        "prefix": "cqrs_query"
+    }
+}
