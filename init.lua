@@ -16,5 +16,5 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup("noahbalboa66.plugins")
-require("avante_lib").load()
+-- require("avante_lib").load()
 require("noahbalboa66")

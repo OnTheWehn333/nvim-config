@@ -47,14 +47,50 @@ vim.lsp.config("*", {
 -- Mason setup
 mason.setup()
 mason_lspconfig.setup({
-	ensure_installed = { "lua_ls", "jsonls", "omnisharp", "nil_ls" },
+	ensure_installed = { "lua_ls", "jsonls", "nil_ls" },
 })
 local pid = vim.fn.getpid()
 --TODO: I think this is broken on mac, don't hardcode and find a better way to get omnisharp bin.
-local omnisharp_bin = "/home/noahbalboa66/.local/share/nvim/mason/packages/omnisharp/OmniSharp" -- Replace with your actual path
+-- local omnisharp_bin = "/home/noahbalboa66/.local/share/nvim/mason/packages/omnisharp/OmniSharp" -- Replace with your actual path
 
-vim.lsp.config("omnisharp", {
-	cmd = { omnisharp_bin, "--languageserver", "--hostPID", tostring(pid) },
+-- vim.lsp.config("omnisharp", {
+-- 	cmd = { omnisharp_bin, "--languageserver", "--hostPID", tostring(pid) },
+-- })
+
+vim.lsp.config("roslyn", {
+	on_attach = function()
+		print("This will run when the server attaches!")
+	end,
+	settings = {
+		["csharp|background_analysis"] = {
+			dotnet_analyzer_diagnostics_scope = "fullSolution",
+			dotnet_compiler_diagnostics_scope = "fullSolution",
+		},
+		["csharp|inlay_hints"] = {
+			csharp_enable_inlay_hints_for_implicit_object_creation = true,
+			csharp_enable_inlay_hints_for_implicit_variable_types = true,
+			csharp_enable_inlay_hints_for_lambda_parameter_types = true,
+			dotnet_enable_inlay_hints_for_indexer_parameters = true,
+			dotnet_enable_inlay_hints_for_literal_parameters = true,
+			dotnet_enable_inlay_hints_for_object_creation_parameters = true,
+			dotnet_enable_inlay_hints_for_other_parameters = true,
+			dotnet_enable_inlay_hints_for_parameters = true,
+			dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
+			dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
+			dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
+		},
+		["csharp|symbol_search"] = {
+			dotnet_search_reference_assemblies = true,
+		},
+		["csharp|completion"] = {
+			dotnet_show_name_completion_suggestions = true,
+			dotnet_show_completion_items_from_unimported_namespaces = true,
+			dotnet_provide_regex_completions = true,
+		},
+		["csharp|code_lens"] = {
+			dotnet_enable_references_code_lens = true,
+		},
+	},
 })
 
 vim.lsp.config("ts_ls", {

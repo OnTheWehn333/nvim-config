@@ -1,3 +1,1 @@
-return {
-	-- "smartpde/telescope-recent-files",
-}
+return {}
