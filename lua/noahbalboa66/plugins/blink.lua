@@ -37,6 +37,11 @@ return {
 						module = "blink-cmp-avante",
 						opts = {},
 					},
+					cmdline = {
+						enabled = function()
+							return vim.fn.getcmdtype() ~= ":" or not vim.fn.getcmdline():match("^[%%0-9,'<>%-]*!")
+						end,
+					},
 					-- avante_commands = {
 					-- 	name = "AvanteCmd",
 					-- 	module = "blink-cmp-avante",

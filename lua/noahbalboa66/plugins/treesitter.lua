@@ -32,6 +32,7 @@ return {
 					"kotlin",
 					"hcl",
 					"terraform",
+					"regex",
 				},
 
 				-- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
@@ -93,6 +94,15 @@ return {
 					},
 				},
 			})
+			local parser_configs = require("nvim-treesitter.parsers").get_parser_configs()
+
+			parser_configs.lua_patterns = {
+				install_info = {
+					url = "https://github.com/OXY2DEV/tree-sitter-lua_patterns",
+					files = { "src/parser.c" },
+					branch = "main",
+				},
+			}
 		end, 0)
 	end,
 }

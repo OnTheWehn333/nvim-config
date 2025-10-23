@@ -27,7 +27,7 @@ return {
 			typescript = {},
 			yaml = { "yamlfmt" },
 			xml = { "xmlformatter" },
-			http = { "kulala-fmt" },
+			-- http = { "kulala-fmt" },
 		},
 		-- Set default options
 		default_format_opts = {
@@ -41,11 +41,11 @@ return {
 				prepend_args = { "-i", "2" },
 			},
 			alejandra = {},
-			kulala = {
-				command = "kulala-fmt",
-				args = { "format", "$FILENAME" },
-				stdin = false,
-			},
+			-- kulala = {
+			-- 	command = "kulala-fmt",
+			-- 	args = { "format", "$FILENAME" },
+			-- 	stdin = false,
+			-- },
 			log_level = vim.log.levels.DEBUG,
 			csharpier = {
 				command = "csharpier",

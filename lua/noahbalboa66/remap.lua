@@ -73,3 +73,4 @@ set("n", "<leader>w=", function()
 	local total_width = vim.o.columns
 	vim.cmd("vertical resize " .. math.floor(total_width * 0.5))
 end, { desc = "resize to 1/2 horizontally" })
+-- /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})*$/

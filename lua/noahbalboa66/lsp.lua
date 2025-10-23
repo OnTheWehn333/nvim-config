@@ -100,3 +100,11 @@ vim.lsp.config("ts_ls", {
 		client.server_capabilities.documentRangeFormattingProvider = false
 	end,
 })
+
+vim.lsp.config("jdtls", {
+	cmd = {
+		vim.fn.expand("~/.local/share/nvim/mason/packages/jdtls/bin/jdtls"),
+		"--java-executable",
+		vim.fn.expand("~/.sdkman/candidates/java/current/bin/java"),
+	},
+})
