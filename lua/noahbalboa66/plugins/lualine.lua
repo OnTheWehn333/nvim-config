@@ -9,7 +9,16 @@ return {
 			end,
 		})
 
-		local lualine_c = { Harpoonline.format, "filename" }
+		-- Macro recording status function
+		local function macro_recording_status()
+			local reg = vim.fn.reg_recording()
+			if reg == "" then
+				return ""
+			end
+			return "recording @" .. reg
+		end
+
+		local lualine_c = { Harpoonline.format, "filename", macro_recording_status }
 		local lualine_x = {
 			"encoding",
 			"fileformat",

@@ -32,34 +32,11 @@ return {
 							search_paths = { vim.fn.stdpath("config") .. "/snippets" },
 						},
 					},
-					avante = {
-						name = "Avante",
-						module = "blink-cmp-avante",
-						opts = {},
-					},
 					cmdline = {
 						enabled = function()
 							return vim.fn.getcmdtype() ~= ":" or not vim.fn.getcmdline():match("^[%%0-9,'<>%-]*!")
 						end,
 					},
-					-- avante_commands = {
-					-- 	name = "AvanteCmd",
-					-- 	module = "blink-cmp-avante",
-					-- 	score_offset = 90, -- show at a higher priority than lsp
-					-- 	opts = {},
-					-- },
-					-- avante_files = {
-					-- 	name = "AvanteFile",
-					-- 	module = "blink-cmp-avante",
-					-- 	score_offset = 100, -- show at a higher priority than lsp
-					-- 	opts = {},
-					-- },
-					-- avante_mentions = {
-					-- 	name = "AvanteMention",
-					-- 	module = "blink-cmp-avante",
-					-- 	score_offset = 1000, -- show at a higher priority than lsp
-					-- 	opts = {},
-					-- },
 				},
 				per_filetype = {
 					sql = { "dadbod", "buffer", "snippets" },

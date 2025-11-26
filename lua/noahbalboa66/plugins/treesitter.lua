@@ -33,6 +33,9 @@ return {
 					"hcl",
 					"terraform",
 					"regex",
+					"markdown",
+					"markdown_inline",
+					"diff",
 				},
 
 				-- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)

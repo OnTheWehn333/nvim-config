@@ -1,4 +1,5 @@
 {
+    "name": "custom-snippets",
     "contributes": {
         "snippets": [
             {
@@ -18,8 +19,15 @@
                 "language": [
                     "http"
                 ]
+            },
+            {
+                "language": [
+                    "telekasten",
+                    "md",
+                    "markdown"
+                ],
+                "path": "./markdown.json"
             }
         ]
-    },
-    "name": "custom-snippets"
+    }
 }

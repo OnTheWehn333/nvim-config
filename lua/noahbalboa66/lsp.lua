@@ -108,3 +108,34 @@ vim.lsp.config("jdtls", {
 		vim.fn.expand("~/.sdkman/candidates/java/current/bin/java"),
 	},
 })
+
+vim.api.nvim_create_autocmd("User", {
+	pattern = "VeryLazy",
+	once = true,
+	callback = function()
+		local ok, noice_progress = pcall(require, "noice.lsp.progress")
+		if not ok or type(noice_progress.progress) ~= "function" or noice_progress._noah_guarded then
+			return
+		end
+
+		local orig = noice_progress.progress
+
+		noice_progress.progress = function(data)
+			local params = data and (data.params or data.result)
+			if type(params) ~= "table" then
+				return
+			end
+
+			local token = params.token
+			local value = params.value
+
+			if token == nil or type(value) ~= "table" or type(value.kind) ~= "string" then
+				return
+			end
+
+			return orig(data)
+		end
+
+		noice_progress._noah_guarded = true
+	end,
+})
