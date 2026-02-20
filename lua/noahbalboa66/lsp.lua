@@ -46,16 +46,8 @@ vim.lsp.config("*", {
 })
 -- Mason setup
 mason.setup()
-mason_lspconfig.setup({
-	ensure_installed = { "lua_ls", "jsonls", "nil_ls" },
-})
+mason_lspconfig.setup({})
 local pid = vim.fn.getpid()
---TODO: I think this is broken on mac, don't hardcode and find a better way to get omnisharp bin.
--- local omnisharp_bin = "/home/noahbalboa66/.local/share/nvim/mason/packages/omnisharp/OmniSharp" -- Replace with your actual path
-
--- vim.lsp.config("omnisharp", {
--- 	cmd = { omnisharp_bin, "--languageserver", "--hostPID", tostring(pid) },
--- })
 
 vim.lsp.config("roslyn", {
 	on_attach = function()
