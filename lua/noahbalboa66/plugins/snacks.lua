@@ -157,6 +157,13 @@ return {
 			desc = "Find Files",
 		},
 		{
+			"<leader>sF",
+			function()
+				Snacks.picker.files({ hidden = true, ignored = true })
+			end,
+			desc = "Find All Files (Hidden & Ignored)",
+		},
+		{
 			"<leader>sG",
 			function()
 				Snacks.picker.git_files()
