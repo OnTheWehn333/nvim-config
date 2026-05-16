@@ -44,6 +44,14 @@ vim.lsp.config("*", {
 	capabilities = capabilities,
 	on_attach = on_attach,
 })
+
+vim.lsp.enable({
+	"bashls",
+	"jsonls",
+	"lua_ls",
+	"nil_ls",
+})
+
 -- Mason setup
 mason.setup()
 mason_lspconfig.setup({})
