@@ -50,6 +50,7 @@ vim.lsp.enable({
 	"jsonls",
 	"lua_ls",
 	"nil_ls",
+	"vtsls",
 })
 
 -- Mason setup
@@ -91,14 +92,6 @@ vim.lsp.config("roslyn", {
 			dotnet_enable_references_code_lens = true,
 		},
 	},
-})
-
-vim.lsp.config("ts_ls", {
-	on_attach = function(client, bufnr)
-		-- Disable tsserver's formatting capabilities
-		client.server_capabilities.documentFormattingProvider = false
-		client.server_capabilities.documentRangeFormattingProvider = false
-	end,
 })
 
 vim.lsp.config("jdtls", {
