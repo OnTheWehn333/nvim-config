@@ -55,7 +55,13 @@ vim.lsp.enable({
 
 -- Mason setup
 mason.setup()
-mason_lspconfig.setup({})
+mason_lspconfig.setup({
+	-- StyLua is a formatter, not a useful LSP client here. New StyLua versions
+	-- reject nvim-lspconfig's legacy `stylua --lsp` command and exit with code 2.
+	automatic_enable = {
+		exclude = { "stylua" },
+	},
+})
 local pid = vim.fn.getpid()
 
 vim.lsp.config("roslyn", {
