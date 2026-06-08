@@ -404,6 +404,20 @@ return {
 			mode = { "n", "v" },
 		},
 		{
+			"<leader>gD",
+			function()
+				Snacks.picker.git_diff()
+			end,
+			desc = "Git Diff Hunks",
+		},
+		{
+			"<leader>gs",
+			function()
+				Snacks.picker.git_status()
+			end,
+			desc = "Git Status",
+		},
+		{
 			"<leader>gL",
 			function()
 				Snacks.picker.git_log_line()
