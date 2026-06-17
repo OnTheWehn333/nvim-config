@@ -51,6 +51,7 @@ vim.lsp.enable({
 	"lua_ls",
 	"nil_ls",
 	"vtsls",
+	"jsonnet_ls",
 })
 
 -- Mason setup

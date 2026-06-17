@@ -1,10 +1,15 @@
 vim.g.mapleader = " "
 vim.g.terminal_emulator = "zsh"
 
-vim.g.clipboard = "osc52"
+local osc52_cache = {
+	["+"] = { {}, "v" },
+	["*"] = { {}, "v" },
+}
 
 local function osc52_copy(reg)
-	return function(lines)
+	return function(lines, regtype)
+		osc52_cache[reg] = { lines, regtype or "v" }
+
 		local s = table.concat(lines, "\n")
 		local b64 = vim.base64.encode(s)
 		local osc = string.format("\x1b]52;%s;%s\x07", reg == "*" and "p" or "c", b64)
@@ -13,8 +18,10 @@ local function osc52_copy(reg)
 		else
 			io.stdout:write(osc)
 		end
+		io.stdout:flush()
 	end
 end
+
 vim.g.clipboard = {
 	name = "OSC 52",
 	copy = {
@@ -23,10 +30,10 @@ vim.g.clipboard = {
 	},
 	paste = {
 		["+"] = function()
-			return { vim.fn.getreg("+", true, true), vim.fn.getregtype("+") }
+			return osc52_cache["+"]
 		end,
 		["*"] = function()
-			return { vim.fn.getreg("*", true, true), vim.fn.getregtype("*") }
+			return osc52_cache["*"]
 		end,
 	},
 }

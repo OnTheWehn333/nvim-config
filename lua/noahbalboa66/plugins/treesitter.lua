@@ -17,6 +17,7 @@ local treesitter_languages = {
 	"xml",
 	"http",
 	"json",
+	"jsonnet",
 	"graphql",
 	"kotlin",
 	"hcl",
@@ -53,6 +54,8 @@ local treesitter_filetypes = {
 	"terraform",
 	"markdown",
 	"diff",
+	"jsonnet",
+	"libsonnet",
 }
 
 return {
