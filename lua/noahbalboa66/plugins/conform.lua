@@ -1,3 +1,21 @@
+local function ruby_formatters(bufnr)
+	local conform = require("conform")
+
+	if conform.get_formatter_info("rubocop", bufnr).available then
+		return { "rubocop", lsp_format = "fallback" }
+	end
+
+	if conform.get_formatter_info("standardrb", bufnr).available then
+		return { "standardrb", lsp_format = "fallback" }
+	end
+
+	if conform.get_formatter_info("syntax_tree", bufnr).available then
+		return { "syntax_tree", lsp_format = "fallback" }
+	end
+
+	return { lsp_format = "prefer" }
+end
+
 return {
 	"stevearc/conform.nvim",
 	event = { "BufWritePre" },
@@ -22,6 +40,8 @@ return {
 			lua = { "stylua" },
 			python = { "isort", "black" },
 			cs = { "csharpier" },
+			ruby = ruby_formatters,
+			eruby = ruby_formatters,
 			nix = { "alejandra" },
 			javascript = {},
 			typescript = {},

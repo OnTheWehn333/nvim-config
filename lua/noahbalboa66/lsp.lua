@@ -45,6 +45,12 @@ vim.lsp.config("*", {
 	on_attach = on_attach,
 })
 
+vim.lsp.config("ruby_lsp", {
+	init_options = {
+		formatter = "auto",
+	},
+})
+
 vim.lsp.enable({
 	"bashls",
 	"jsonls",
@@ -52,6 +58,7 @@ vim.lsp.enable({
 	"nil_ls",
 	"vtsls",
 	"jsonnet_ls",
+	"ruby_lsp",
 })
 
 -- Mason setup
