@@ -68,17 +68,12 @@ return {
 	dependencies = {
 		{ "nvim-treesitter/nvim-treesitter-textobjects", branch = "main" },
 	},
-	build = function()
-		if vim.fn.executable("tree-sitter") == 1 then
-			require("nvim-treesitter").install(treesitter_languages):wait(300000)
-		else
-			vim.notify("tree-sitter CLI is required to install nvim-treesitter parsers", vim.log.levels.WARN)
-		end
-	end,
+	build = ":TSUpdate",
 	config = function()
 		local ts = require("nvim-treesitter")
 
 		ts.setup()
+		ts.install(treesitter_languages)
 
 		vim.api.nvim_create_autocmd("FileType", {
 			pattern = treesitter_filetypes,

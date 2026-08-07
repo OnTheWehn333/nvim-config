@@ -6,19 +6,6 @@ local mason_lspconfig = require("mason-lspconfig")
 -- Capabilities
 local capabilities = require("blink.cmp").get_lsp_capabilities()
 
--- Format on save
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-local function lsp_format_on_save(bufnr)
-	vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-	vim.api.nvim_create_autocmd("BufWritePre", {
-		group = augroup,
-		buffer = bufnr,
-		callback = function(args)
-			require("conform").format({ bufnr = args.buf })
-		end,
-	})
-end
-
 -- on_attach
 local function on_attach(client, bufnr)
 	local function map(mode, lhs, rhs, desc)
@@ -36,8 +23,6 @@ local function on_attach(client, bufnr)
 	map("n", "[d", vim.diagnostic.goto_next, "Next diagnostic")
 	map("n", "]d", vim.diagnostic.goto_prev, "Prev diagnostic")
 	map("n", "<leader>vd", vim.diagnostic.open_float, "Diagnostics float")
-
-	lsp_format_on_save(bufnr)
 end
 
 vim.lsp.config("*", {
