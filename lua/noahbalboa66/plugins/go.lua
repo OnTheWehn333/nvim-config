@@ -6,7 +6,10 @@ return {
 		"nvim-treesitter/nvim-treesitter",
 	},
 	config = function()
-		require("go").setup()
+		require("go").setup({
+			-- Core LSP configuration owns gopls; go.nvim provides Go commands and tooling.
+			lsp_cfg = false,
+		})
 	end,
 	event = { "CmdlineEnter" },
 	ft = { "go", "gomod" },

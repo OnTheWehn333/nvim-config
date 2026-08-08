@@ -55,6 +55,7 @@ local treesitter_filetypes = {
 	"hcl",
 	"terraform",
 	"markdown",
+	"pi-chat-history",
 	"diff",
 	"jsonnet",
 	"libsonnet",

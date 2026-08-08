@@ -1,29 +1,49 @@
 -- LSP base setup
 
-local mason = require("mason")
-local mason_lspconfig = require("mason-lspconfig")
-
 -- Capabilities
 local capabilities = require("blink.cmp").get_lsp_capabilities()
+capabilities.textDocument.foldingRange = {
+	dynamicRegistration = false,
+	lineFoldingOnly = true,
+}
 
--- on_attach
 local function on_attach(client, bufnr)
 	local function map(mode, lhs, rhs, desc)
 		vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
 	end
 
-	-- map("n", "gd", vim.lsp.buf.definition, "Go to definition")
-	map("n", "K", vim.lsp.buf.hover, "Hover")
-	-- map("n", "<leader>vws", vim.lsp.buf.declaration, "Go to declaration")
-	-- map("n", "<leader>vtd", vim.lsp.buf.type_definition, "Type definition")
-	map("n", "<leader>vca", vim.lsp.buf.code_action, "Code action")
-	-- map("n", "<leader>vrr", vim.lsp.buf.references, "References")
-	map("n", "<leader>vrn", vim.lsp.buf.rename, "Rename")
-	map("i", "<C-h>", vim.lsp.buf.signature_help, "Signature help")
-	map("n", "[d", vim.diagnostic.goto_next, "Next diagnostic")
-	map("n", "]d", vim.diagnostic.goto_prev, "Prev diagnostic")
+	-- Neovim provides the standard K, gr*, gO, [d, ]d, and insert-mode
+	-- <C-s> mappings. Keep only additions that are specific to this config.
 	map("n", "<leader>vd", vim.diagnostic.open_float, "Diagnostics float")
+
+	if client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, bufnr) then
+		map("n", "<leader>li", function()
+			local filter = { bufnr = bufnr }
+			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(filter), filter)
+		end, "Toggle inlay hints")
+	end
+
+	if client:supports_method(vim.lsp.protocol.Methods.textDocument_codeLens, bufnr) then
+		vim.lsp.codelens.enable(true, { bufnr = bufnr })
+		map("n", "<leader>lL", function()
+			local filter = { bufnr = bufnr }
+			vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled(filter), filter)
+		end, "Toggle code lens")
+	end
 end
+
+vim.diagnostic.config({
+	severity_sort = true,
+	update_in_insert = false,
+	virtual_text = {
+		spacing = 2,
+		source = "if_many",
+	},
+	float = {
+		border = "rounded",
+		source = "if_many",
+	},
+})
 
 vim.lsp.config("*", {
 	capabilities = capabilities,
@@ -36,31 +56,21 @@ vim.lsp.config("ruby_lsp", {
 	},
 })
 
+-- Language-server executables are supplied by Nix and discovered through PATH.
+-- Roslyn is enabled by roslyn.nvim rather than this list.
 vim.lsp.enable({
 	"bashls",
+	"gopls",
+	"jdtls",
 	"jsonls",
+	"jsonnet_ls",
 	"lua_ls",
 	"nil_ls",
-	"vtsls",
-	"jsonnet_ls",
 	"ruby_lsp",
+	"vtsls",
 })
-
--- Mason setup
-mason.setup()
-mason_lspconfig.setup({
-	-- StyLua is a formatter, not a useful LSP client here. New StyLua versions
-	-- reject nvim-lspconfig's legacy `stylua --lsp` command and exit with code 2.
-	automatic_enable = {
-		exclude = { "stylua" },
-	},
-})
-local pid = vim.fn.getpid()
 
 vim.lsp.config("roslyn", {
-	on_attach = function()
-		print("This will run when the server attaches!")
-	end,
 	settings = {
 		["csharp|background_analysis"] = {
 			dotnet_analyzer_diagnostics_scope = "fullSolution",
@@ -90,14 +100,6 @@ vim.lsp.config("roslyn", {
 		["csharp|code_lens"] = {
 			dotnet_enable_references_code_lens = true,
 		},
-	},
-})
-
-vim.lsp.config("jdtls", {
-	cmd = {
-		vim.fn.expand("~/.local/share/nvim/mason/packages/jdtls/bin/jdtls"),
-		"--java-executable",
-		vim.fn.expand("~/.sdkman/candidates/java/current/bin/java"),
 	},
 })
 

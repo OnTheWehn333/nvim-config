@@ -3,6 +3,8 @@ return {
 	---@module 'roslyn.config'
 	---@type RoslynNvimConfig
 	opts = {
-		-- your configuration comes here; leave empty for default settings
+		-- Neovim's watcher can report ENOENT for Roslyn's temporary project files.
+		-- Let Roslyn watch the workspace itself instead.
+		filewatching = "roslyn",
 	},
 }

@@ -86,26 +86,39 @@ return {
 			desc = "Goto Declaration",
 		},
 		{
-			"gr",
+			"grr",
 			function()
 				Snacks.picker.lsp_references()
 			end,
-			nowait = true,
 			desc = "References",
 		},
 		{
-			"gI",
+			"gri",
 			function()
 				Snacks.picker.lsp_implementations()
 			end,
 			desc = "Goto Implementation",
 		},
 		{
-			"gy",
+			"grt",
 			function()
 				Snacks.picker.lsp_type_definitions()
 			end,
-			desc = "Goto T[y]pe Definition",
+			desc = "Goto Type Definition",
+		},
+		{
+			"gai",
+			function()
+				Snacks.picker.lsp_incoming_calls()
+			end,
+			desc = "Calls Incoming",
+		},
+		{
+			"gao",
+			function()
+				Snacks.picker.lsp_outgoing_calls()
+			end,
+			desc = "Calls Outgoing",
 		},
 		{
 			"<leader>ss",
@@ -389,7 +402,7 @@ return {
 			desc = "Delete Buffer",
 		},
 		{
-			"<leader>cR",
+			"<leader>fr",
 			function()
 				Snacks.rename.rename_file()
 			end,

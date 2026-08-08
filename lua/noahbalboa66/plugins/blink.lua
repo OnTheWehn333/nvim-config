@@ -4,9 +4,8 @@ return {
 		lazy = false,
 		dependencies = {
 			"rafamadriz/friendly-snippets",
-			"Kaiser-Yang/blink-cmp-avante",
 		},
-		version = "v0.*",
+		version = "1.*",
 		opts = {
 			keymap = {
 				preset = "default",

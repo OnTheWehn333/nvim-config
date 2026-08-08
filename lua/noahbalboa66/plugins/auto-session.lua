@@ -1,6 +1,9 @@
 return {
 	"rmagatti/auto-session",
 	lazy = false,
+	init = function()
+		vim.opt.sessionoptions:append("localoptions")
+	end,
 
 	---enables autocomplete for opts
 	---@module "auto-session"

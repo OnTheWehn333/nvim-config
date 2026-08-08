@@ -1,11 +1,10 @@
 vim.filetype.add({
 	extension = {
 		fga = "yaml",
+		gotmpl = "gotmpl",
+		libsonnet = "libsonnet",
 	},
 })
-
--- Register markdown parser for telekasten filetype
-vim.treesitter.language.register("markdown", "telekasten")
 
 -- Filetype-specific settings
 vim.api.nvim_create_autocmd("FileType", {
@@ -19,7 +18,7 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "text", "markdown", "telekasten" },
+	pattern = { "text", "markdown" },
 	callback = function()
 		vim.opt_local.spell = true
 		vim.opt_local.spelllang = { "en_us" }

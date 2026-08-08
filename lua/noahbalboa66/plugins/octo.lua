@@ -1,13 +1,11 @@
 return {
 	"pwntester/octo.nvim",
-	requires = {
+	dependencies = {
 		"nvim-lua/plenary.nvim",
-		-- TODO: switch to snacks for picker
-		"nvim-telescope/telescope.nvim",
-		-- OR 'ibhagwan/fzf-lua',
+		"folke/snacks.nvim",
 		"nvim-tree/nvim-web-devicons",
 	},
-	config = function()
-		require("octo").setup()
-	end,
+	opts = {
+		picker = "snacks",
+	},
 }

@@ -5,21 +5,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common Commands
 
 ### Plugin Management
+
 - **Install/Update Plugins**: `:Lazy` - Opens Lazy.nvim plugin manager interface
 - **Sync Plugins**: `:Lazy sync` - Updates and cleans plugins according to lazy-lock.json
 - **Check Plugin Health**: `:checkhealth lazy` - Verifies plugin installation status
 
 ### LSP and Language Servers
-- **Install Language Servers**: `:Mason` - Opens Mason interface to install/manage LSP servers
-- **LSP Info**: `:LspInfo` - Shows attached LSP servers for current buffer
-- **Format Code**: `<leader>f` - Manual formatting with Conform, or `<leader>vf` for LSP formatting
+
+- **Install Language Servers**: Add executables to the Nix/Home Manager configuration; Mason is not used
+- **LSP Info**: `:LspInfo` - Shows attached LSP servers for the current buffer
+- **LSP Health**: `:checkhealth vim.lsp` - Checks enabled configurations and active clients
+- **Format Code**: `<leader>f` - Manual formatting with Conform
 
 ### Development Tools
-- **File Navigation**: 
-  - `<leader>sf` - Search files with Telescope
-  - `<leader>sg` - Live grep search
-  - `<leader>gf` - Git files search
-- **Quick File Access**: 
+
+- **File Navigation**:
+  - `<leader>sf` - Search files with Snacks
+  - `<leader>sg` - Live grep with Snacks
+  - `<leader>sG` - Search Git files with Snacks
+- **Quick File Access**:
   - `<leader>ha` - Add file to Harpoon
   - `<leader>hm` - Harpoon quick menu
   - `<C-h>`, `<C-t>`, `<C-n>`, `<C-s>` - Jump to Harpoon files 1-4
@@ -28,11 +32,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Configuration Architecture
 
 ### Plugin Management System
+
 - **Plugin Manager**: Lazy.nvim with lazy loading and dependency management
 - **Lock File**: `lazy-lock.json` pins exact plugin versions for reproducibility
 - **Plugin Loading**: Event-driven loading via `require("lazy").setup('noahbalboa66.plugins')`
 
 ### Configuration Structure
+
 ```
 lua/noahbalboa66/
 ├── init.lua          # Main module loader
@@ -42,56 +48,65 @@ lua/noahbalboa66/
 ├── filetype.lua      # Filetype-specific settings
 ├── utils.lua         # Shared utility functions
 └── plugins/          # Individual plugin configurations
-    ├── telescope.lua     # Fuzzy finder and search
+    ├── snacks.lua       # Pickers, explorer, notifications, and utilities
     ├── harpoon.lua      # Quick file navigation
-    ├── mason.lua        # LSP server management
+    ├── lspconfig.lua    # nvim-lspconfig plugin declaration
     ├── conform.lua      # Code formatting
-    ├── avante.lua       # AI coding assistant
+    ├── roslyn.lua       # C# Roslyn integration
     └── [40+ other plugins]
 ```
 
 ### Core Plugin Ecosystem
-1. **Search & Navigation**: Telescope (fuzzy finder) + Harpoon (quick access) + Oil (file explorer)
-2. **LSP Stack**: Mason (server management) → LSPConfig → nvim-cmp (completion)
-3. **Code Quality**: Conform (formatting) + LSP (diagnostics) + Treesitter (syntax)
+
+1. **Search & Navigation**: Snacks pickers/explorer + Harpoon + Oil
+2. **LSP Stack**: Nix-provided binaries → native LSP/nvim-lspconfig → Blink completion
+3. **Code Quality**: Conform formatting + native LSP diagnostics + Treesitter syntax
 4. **Git Integration**: Gitsigns + Fugitive + LazyGit + Diffview + Octo (GitHub)
-5. **AI Tools**: Avante (AI assistant) + Copilot (suggestions)
+5. **AI Tools**: Pi coding-agent chat/review workflows + opencode integration
 
 ### Language Support
-- **Lua**: stylua formatter, lua_ls LSP server
-- **Python**: isort + black formatters  
-- **JavaScript/TypeScript**: ts_ls LSP (formatting disabled, relies on external tools)
-- **C#**: OmniSharp LSP, csharpier formatter, DAP debugging support
-- **Go**: go.nvim plugin with full toolchain integration
-- **YAML**: Dedicated plugin for Kubernetes/Docker workflows
+
+- **Lua**: lua_ls + StyLua
+- **Python**: isort + Black formatters; no Python LSP is currently enabled
+- **JavaScript/TypeScript**: vtsls; formatting falls back to LSP unless a formatter is added
+- **C#**: Roslyn + CSharpier + netcoredbg; do not enable OmniSharp
+- **Go**: gopls is owned by the core LSP config; go.nvim provides additional commands/tooling
+- **Java**: jdtls from Nix/PATH
+- **YAML**: yaml.nvim uses Snacks; yamlfmt formats files, but yamlls is not currently enabled
 
 ### Key Integration Patterns
-- **Shared Dependencies**: plenary.nvim used across multiple plugins
-- **Extension System**: Telescope acts as platform with fzf, git-history, trouble extensions
-- **Utility Functions**: Custom git root finding and project detection in utils.lua
-- **Cross-Plugin Communication**: Trouble integrates with Telescope for error navigation
+
+- **LSP UI**: Native LSP owns contextual actions; Snacks owns list/search/preview workflows
+- **LSP Navigation**: Snacks handles definitions, references, implementations, symbols, diagnostics, and call hierarchy
+- **Word References**: Snacks Words owns LSP document highlighting
+- **Utility Functions**: Shared project helpers live in utils.lua
 
 ### Development Workflow Features
+
 - **Format-on-Save**: Automatic formatting with 500ms timeout via Conform
 - **LSP Integration**: Jump to definition, hover, diagnostics, code actions
 - **Git Workflow**: Stage hunks, blame, branch management, GitHub PR integration
 - **Project Navigation**: Git root detection, recent files, fuzzy search
-- **AI Assistance**: Code generation and explanation via Avante with image support
+- **AI Assistance**: Pi provides project-scoped chat and review workflows; opencode provides additional agent integration
 
 ### Configuration Management
+
 - **Leader Key**: Space (`" "`) for most custom commands
 - **Window Management**: Custom resize functions for split management
 - **Tmux Integration**: Seamless navigation between Neovim and tmux panes
 - **Terminal Integration**: Uses 'zsh' as terminal emulator
 
 ### Performance Optimizations
+
 - **Lazy Loading**: Plugins load on specific events (VeryLazy, BufWritePre, etc.)
-- **Bigfile Handling**: Special plugin to disable features for large files  
+- **Bigfile Handling**: Special plugin to disable features for large files
 - **UFO Folding**: Enhanced code folding for better navigation
 - **Undotree**: Persistent undo with dedicated undo directory
 
 ### Special Considerations
-- **Custom LSP Setup**: Uses vim.lsp.config() with manual OmniSharp path configuration
-- **Format Chain**: Some languages use multiple formatters in sequence (Python: isort → black)
-- **Git Root Detection**: Custom functions in utils.lua for project-aware commands
-- **Image Support**: Avante plugin includes image clipboard integration for AI interactions
+
+- **LSP Setup**: Uses Neovim's modern `vim.lsp.config()`/`vim.lsp.enable()` APIs
+- **Dependency Ownership**: Language servers, formatters, debuggers, and runtimes come from Nix/PATH, not Mason
+- **C#**: roslyn.nvim enables Roslyn; running OmniSharp concurrently causes duplicate clients
+- **Format Chain**: Some languages use multiple formatters in sequence (Python: isort → Black)
+- **Git Root Detection**: Custom functions in utils.lua support project-aware commands

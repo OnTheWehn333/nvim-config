@@ -1,33 +1,32 @@
 {
-    "name": "custom-snippets",
-    "contributes": {
-        "snippets": [
-            {
-                "language": [
-                    "cs"
-                ],
-                "path": "./cs.json"
-            },
-            {
-                "language": [
-                    "sql"
-                ],
-                "path": "./sql.json"
-            },
-            {
-                "path": "./http.json",
-                "language": [
-                    "http"
-                ]
-            },
-            {
-                "language": [
-                    "telekasten",
-                    "md",
-                    "markdown"
-                ],
-                "path": "./markdown.json"
-            }
+  "name": "custom-snippets",
+  "contributes": {
+    "snippets": [
+      {
+        "language": [
+          "cs"
+        ],
+        "path": "./cs.json"
+      },
+      {
+        "language": [
+          "sql"
+        ],
+        "path": "./sql.json"
+      },
+      {
+        "path": "./http.json",
+        "language": [
+          "http"
         ]
-    }
+      },
+      {
+        "language": [
+          "md",
+          "markdown"
+        ],
+        "path": "./markdown.json"
+      }
+    ]
+  }
 }
