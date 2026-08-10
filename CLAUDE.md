@@ -63,6 +63,8 @@ lua/noahbalboa66/
 3. **Code Quality**: Conform formatting + native LSP diagnostics + Treesitter syntax
 4. **Git Integration**: Gitsigns + Fugitive + LazyGit + Diffview + Octo (GitHub)
 5. **AI Tools**: Pi coding-agent chat/review workflows + opencode integration
+   - Pi launched by Neovim replaces the terminal-only rich question form with `pi-extensions/ask-user.ts`; its attention-queued dialog keeps hover separate from committed choices, supports single/multiple selection, and submits the answer plus optional additional context together. Press `Esc` from the question to hide it without answering, then `<leader>pa` to restore it with its current selections and text intact.
+   - `<leader>pv` / `:PiCode` opens a compact, newest-first Snacks picker for fenced code in the active Pi branch. It starts in Normal mode on the results list: `y` yanks the whole block and closes, Enter focuses the right preview for visually selecting and yanking a subset, and `i` focuses the fuzzy-search input when filtering is needed.
 
 ### Language Support
 

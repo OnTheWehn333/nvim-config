@@ -78,8 +78,8 @@ function M.code_pulse()
 	})
 
 	vim.wo[win].cursorline = true
-	vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = buf, silent = true })
-	vim.keymap.set("n", "<Esc>", "<cmd>close<CR>", { buffer = buf, silent = true })
+	vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = buf, silent = true, desc = "Close code pulse" })
+	vim.keymap.set("n", "<Esc>", "<cmd>close<CR>", { buffer = buf, silent = true, desc = "Close code pulse" })
 end
 
 function M.setup()

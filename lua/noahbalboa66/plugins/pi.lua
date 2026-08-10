@@ -108,6 +108,45 @@ local function focus_pi_prompt_insert(opts)
 	end)
 end
 
+local function setup_compact_pi_tools()
+	local tools = require("pi.ui.chat.tools")
+	if tools._noah_compact_blocks then
+		return
+	end
+
+	-- pi.nvim does not currently expose tool collapse thresholds as options.
+	-- Treat every non-inline tool as a compact block while preserving its
+	-- built-in <Tab> expansion behavior.
+	local get_renderer = tools.get_renderer
+	tools.get_renderer = function(tool_name)
+		local renderer = get_renderer(tool_name)
+		if not renderer.inline then
+			renderer.input_visible = 0
+			renderer.output_visible = 0
+		end
+		return renderer
+	end
+
+	local build_collapsed_view = tools.build_collapsed_view
+	tools.build_collapsed_view = function(
+		input_lines,
+		output_lines,
+		has_output,
+		input_visible,
+		output_visible,
+		max_width
+	)
+		if input_visible == 0 and output_visible == 0 then
+			local detail_count = #input_lines + #output_lines
+			local suffix = detail_count == 1 and " detail line" or " detail lines"
+			return { " … " .. detail_count .. suffix }, { "summary" }
+		end
+		return build_collapsed_view(input_lines, output_lines, has_output, input_visible, output_visible, max_width)
+	end
+
+	tools._noah_compact_blocks = true
+end
+
 local function setup_pi_highlights()
 	local function hl_color(group, attr, fallback)
 		local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
@@ -137,6 +176,14 @@ local function setup_pi_highlights()
 	local groups = {
 		PiFloat = { bg = "NONE", fg = palette.fg },
 		PiFloatBorder = { fg = palette.purple, bg = "NONE" },
+		PiDialogTitle = { fg = palette.purple, bold = true },
+		PiQuestionHeading = { fg = palette.cyan, bold = true },
+		PiQuestionLabel = { fg = palette.purple, bold = true },
+		PiQuestionSelected = { fg = palette.cyan, bg = palette.bg_alt, bold = true },
+		PiQuestionConfirmed = { fg = palette.green, bg = palette.bg_alt, bold = true },
+		PiQuestionContext = { fg = palette.fg, bg = palette.bg_alt },
+		PiQuestionContextBorder = { fg = palette.muted, bg = "NONE" },
+		PiQuestionHint = { fg = palette.muted, bg = palette.bg_alt, italic = true },
 
 		PiChatHistoryWinbar = { bg = palette.bg_alt },
 		PiChatHistoryWinbarTitle = { fg = palette.bg, bg = palette.cyan, bold = true },
@@ -322,7 +369,7 @@ return {
 	"alex35mil/pi.nvim",
 
 	-- Optional: required only for `:PiPasteImage` (clipboard image paste).
-	dependencies = { "HakonHarnes/img-clip.nvim" },
+	dependencies = { "HakonHarnes/img-clip.nvim", "folke/snacks.nvim" },
 
 	cmd = {
 		"Pi",
@@ -338,6 +385,7 @@ return {
 		"PiSessionName",
 		"PiToggleDebug",
 		"PiSendMention",
+		"PiCode",
 		"PiRoot",
 		"PiRoots",
 	},
@@ -401,12 +449,37 @@ return {
 			end,
 			desc = "Pi: use project root",
 		},
-		{ "<leader>pa", "<cmd>PiAttention<cr>", desc = "Pi: attention" },
+		{
+			"<leader>pa",
+			function()
+				if not require("noahbalboa66.pi_question_dialog").toggle() then
+					require("pi.attention").open_next_for_tab(0)
+				end
+			end,
+			desc = "Pi: toggle current session question / attention",
+		},
+		{
+			"<leader>pb",
+			function()
+				require("pi").toggle_history_blocks()
+			end,
+			desc = "Pi: toggle history blocks",
+		},
+		{
+			"<leader>pv",
+			function()
+				require("noahbalboa66.pi_code_picker").pick()
+			end,
+			desc = "Pi: pick fenced code",
+		},
 		{ "<leader>pS", "<cmd>PiStop<cr>", desc = "Pi: stop" },
 	},
 
 	config = function()
 		local pi = require("pi")
+		setup_compact_pi_tools()
+
+		local ask_user_extension = vim.fs.joinpath(vim.fn.stdpath("config"), "pi-extensions", "ask-user.ts")
 
 		pi.setup({
 			cli = {
@@ -418,6 +491,13 @@ return {
 					"gpt-5.6-sol",
 					"--thinking",
 					"high",
+					-- The installed rich-form extension uses ctx.ui.custom(), which
+					-- cannot be displayed through Pi's RPC mode. Use the local
+					-- built-in-dialog tool so questions participate in attention.
+					"--exclude-tools",
+					"ask_user_question",
+					"--extension",
+					ask_user_extension,
 				},
 			},
 			models = {
@@ -460,6 +540,11 @@ return {
 				auto_open_on_prompt_focus = true,
 				notify_on_completion = true,
 			},
+			statusline = {
+				components = {
+					attention = { counter = true },
+				},
+			},
 			diff = {
 				keymap_hints = "dialog",
 			},
@@ -474,6 +559,10 @@ return {
 			},
 		})
 
+		require("noahbalboa66.pi_question_dialog").setup()
+		vim.api.nvim_create_user_command("PiCode", function()
+			require("noahbalboa66.pi_code_picker").pick()
+		end, { desc = "Pick fenced code blocks from the active Pi conversation" })
 		setup_pi_highlights()
 		vim.api.nvim_create_autocmd("ColorScheme", {
 			callback = setup_pi_highlights,

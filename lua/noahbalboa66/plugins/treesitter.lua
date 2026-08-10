@@ -55,6 +55,7 @@ local treesitter_filetypes = {
 	"hcl",
 	"terraform",
 	"markdown",
+	"review-comment",
 	"pi-chat-history",
 	"diff",
 	"jsonnet",
@@ -76,7 +77,9 @@ return {
 		ts.setup()
 		ts.install(treesitter_languages)
 
+		local treesitter_group = vim.api.nvim_create_augroup("Noahbalboa66Treesitter", { clear = true })
 		vim.api.nvim_create_autocmd("FileType", {
+			group = treesitter_group,
 			pattern = treesitter_filetypes,
 			callback = function()
 				-- Highlighting is provided by Neovim on 0.12+.
@@ -95,6 +98,27 @@ return {
 				set_jumps = true,
 			},
 		})
+
+		-- Remove previous mappings when this config is reloaded in a running session.
+		for _, lhs in ipairs({ "<C-Space>", "]v", "<CR>" }) do
+			for _, mode in ipairs({ "n", "x" }) do
+				pcall(vim.keymap.del, mode, lhs)
+			end
+		end
+
+		local function select_parent()
+			vim.treesitter.select("parent", vim.v.count1)
+		end
+
+		vim.keymap.set("n", "]v", select_parent, { desc = "Start Tree-sitter selection" })
+		vim.keymap.set("x", "<CR>", select_parent, { desc = "Expand Tree-sitter selection" })
+		vim.keymap.set("x", "<BS>", function()
+			vim.treesitter.select("child", vim.v.count1)
+		end, { desc = "Shrink Tree-sitter selection" })
+
+		vim.api.nvim_create_user_command("TreesitterReload", function()
+			vim.cmd("Lazy reload nvim-treesitter")
+		end, { desc = "Reload the Tree-sitter configuration", force = true })
 
 		local select = require("nvim-treesitter-textobjects.select")
 		vim.keymap.set({ "x", "o" }, "aa", function()

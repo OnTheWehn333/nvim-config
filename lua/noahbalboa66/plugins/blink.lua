@@ -22,6 +22,10 @@ return {
 			sources = {
 				default = { "lsp", "path", "snippets", "buffer" },
 				providers = {
+					pi = {
+						name = "Pi",
+						module = "pi.completion.blink",
+					},
 					dadbod = {
 						name = "Dadbod",
 						module = "vim_dadbod_completion.blink",
@@ -29,6 +33,9 @@ return {
 					snippets = {
 						opts = {
 							search_paths = { vim.fn.stdpath("config") .. "/snippets" },
+							extended_filetypes = {
+								["review-comment"] = { "markdown" },
+							},
 						},
 					},
 					cmdline = {
@@ -39,6 +46,7 @@ return {
 				},
 				per_filetype = {
 					sql = { "dadbod", "buffer", "snippets" },
+					["pi-chat-prompt"] = { "pi" },
 				},
 			},
 			cmdline = {

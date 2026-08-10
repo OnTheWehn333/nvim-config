@@ -25,9 +25,9 @@ set("v", "<leader>d", '"_d', { desc = "Delete into void buffer" })
 
 set("i", "<C-c>", vim.cmd.stopinsert, { desc = "Exit insert mode without closing UI" })
 
-set("n", "Q", "<nop>")
+set("n", "Q", "<nop>", { desc = "Disable Ex mode" })
 set("n", "<leader>Q", "<cmd>qa<CR>", { desc = "Quit all windows" })
-set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
+set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "Open tmux sessionizer" })
 
 set("n", "<C-k>", "<cmd>cnext<CR>zz", { desc = "Quick List 'c' Next" })
 set("n", "<C-j>", "<cmd>cprev<CR>zz", { desc = "Quick List 'c' Prev" })

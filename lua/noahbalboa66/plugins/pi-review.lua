@@ -99,7 +99,7 @@ return {
 		},
 		{ "<leader>rl", review.select, desc = "Review: list issues" },
 		{ "<leader>rq", review.quickfix, desc = "Review: issues quickfix" },
-		{ "<leader>re", review.edit_comment, desc = "Review: edit comment" },
+		{ "<leader>re", review.edit_comment, desc = "Review: edit issue" },
 		{ "<leader>rt", review.change_category, desc = "Review: change type" },
 		{ "<leader>rx", review.toggle_fixed, desc = "Review: toggle issue fixed" },
 		{ "<leader>ry", review.copy_open_for_ai, desc = "Review: copy open issues for AI" },

@@ -2,6 +2,11 @@ return {
 	"lewis6991/gitsigns.nvim",
 	config = function()
 		require("gitsigns").setup({
+			-- Snacks uses Git's hunks. Disable Neovim's second-stage line
+			-- matching so its hunk boundaries match the Git pickers.
+			diff_opts = {
+				linematch = 0,
+			},
 			signs = {
 				add = { text = "│" },
 				change = { text = "│" },
@@ -95,7 +100,7 @@ return {
 				map("n", "<leader>htd", gs.toggle_deleted, { desc = "Toggle deleted" })
 
 				-- Text object
-				map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>")
+				map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>", { desc = "Select hunk" })
 			end,
 		})
 	end,

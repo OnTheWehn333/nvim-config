@@ -14,8 +14,14 @@ return {
 		},
 		on_highlights = function(hl, c)
 			hl.WinSeparator = { fg = c.blue7 }
+			hl.CursorLine = { bg = require("tokyonight.util").blend(c.bg_highlight, 0.5, c.bg) }
 			hl.CursorLineNr = { fg = c.orange, bold = true }
 			hl.LineNr = { fg = c.dark5 }
+			hl.FoldColumn = { fg = c.dark5, bg = c.none }
+			hl.Folded = { fg = c.comment, bg = c.none }
+			hl.UfoFoldedBg = { fg = c.fg_dark, bg = c.none }
+			hl.UfoFoldedFg = { fg = c.fg_dark }
+			hl.UfoFoldedEllipsis = { fg = c.comment, italic = true }
 			hl.DiagnosticVirtualTextError = { fg = c.error, bg = c.none }
 			hl.DiagnosticVirtualTextWarn = { fg = c.warning, bg = c.none }
 			hl.DiagnosticVirtualTextInfo = { fg = c.info, bg = c.none }

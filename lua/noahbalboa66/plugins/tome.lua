@@ -6,6 +6,7 @@ return {
 		-- a tmux/zsh pane. Disable defaults and bind Tome under <leader>T instead.
 		vim.g.tome_no_mappings = 1
 	end,
+	cmd = { "TomePlayBook", "TomeScratchPad", "TomeScratchPadOnly" },
 	keys = {
 		{ "<leader>Tp", "<Plug>(TomePlayLine)", desc = "Tome: play line" },
 		{ "<leader>TP", "<Plug>(TomePlayParagraph)", desc = "Tome: play paragraph" },

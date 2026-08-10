@@ -12,8 +12,12 @@ local function on_attach(client, bufnr)
 		vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
 	end
 
-	-- Neovim provides the standard K, gr*, gO, [d, ]d, and insert-mode
-	-- <C-s> mappings. Keep only additions that are specific to this config.
+	-- Neovim provides the standard gr*, gO, [d, ]d, and insert-mode
+	-- <C-s> mappings. Override hover only to give its floating window a
+	-- visible outline against the transparent background.
+	map("n", "K", function()
+		vim.lsp.buf.hover({ border = "rounded" })
+	end, "LSP hover")
 	map("n", "<leader>vd", vim.diagnostic.open_float, "Diagnostics float")
 
 	if client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, bufnr) then

@@ -75,6 +75,37 @@ local function category_hl(mark)
 	return item and ("CodeReviewCategory" .. item.id:gsub("[^%w]", "")) or "CodeReviewMark"
 end
 
+local function category_item_hl(item)
+	return item and ("CodeReviewCategory" .. item.id:gsub("[^%w]", "")) or "CodeReviewMark"
+end
+
+local function format_category_item(item, supports_chunks)
+	local icon = item.icon and item.icon ~= "" and (item.icon .. " ") or ""
+	local label = item.label or item.id or "Review"
+	local description = item.description and item.description ~= "" and ("  —  " .. item.description) or ""
+	if supports_chunks then
+		return {
+			{ icon .. label, category_item_hl(item) },
+			{ description, "CodeReviewMuted" },
+		}
+	end
+	return icon .. label .. description
+end
+
+local function format_issue_item(mark, supports_chunks)
+	local label = category_text(mark)
+	local id = " #" .. mark.id
+	local note = mark.note and mark.note ~= "" and ("  —  " .. mark.note) or ""
+	if supports_chunks then
+		return {
+			{ label, category_hl(mark) },
+			{ id, "CodeReviewId" },
+			{ note, "CodeReviewMuted" },
+		}
+	end
+	return label .. id .. note
+end
+
 local function comment_summary(note)
 	if not note or note == "" then
 		return ""
@@ -84,14 +115,37 @@ local function comment_summary(note)
 end
 
 local function setup_highlights()
+	local function hl_color(group, attr, fallback)
+		local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
+		local value = ok and hl[attr] or nil
+		return value and string.format("#%06x", value) or fallback
+	end
+
+	local normal_fg = hl_color("Normal", "fg", "#d1d5db")
+	local muted = hl_color("Comment", "fg", "#6b7280")
+	local alt_bg = hl_color("CursorLine", "bg", hl_color("StatusLine", "bg", "#1f2937"))
+
+	vim.api.nvim_set_hl(0, "CodeReviewFloat", { fg = normal_fg, bg = "NONE" })
+	vim.api.nvim_set_hl(0, "CodeReviewBorder", { fg = "#c084fc", bg = "NONE" })
+	vim.api.nvim_set_hl(0, "CodeReviewTitle", { fg = "#c084fc", bold = true })
+	vim.api.nvim_set_hl(0, "CodeReviewCursorLine", { bg = alt_bg })
+	vim.api.nvim_set_hl(0, "CodeReviewSelectedLine", { bg = alt_bg })
 	vim.api.nvim_set_hl(0, "CodeReviewMark", { fg = "#fb923c", bold = true })
+	vim.api.nvim_set_hl(0, "CodeReviewOpen", { fg = "#fbbf24", bold = true })
 	vim.api.nvim_set_hl(0, "CodeReviewFixed", { fg = "#34d399", bold = true })
 	vim.api.nvim_set_hl(0, "CodeReviewSelected", { fg = "#60a5fa", bold = true })
-	vim.api.nvim_set_hl(0, "CodeReviewFile", { fg = "#c084fc", bold = true })
-	vim.api.nvim_set_hl(0, "CodeReviewArchived", { fg = "#6b7280", italic = true })
+	vim.api.nvim_set_hl(0, "CodeReviewFileIcon", { fg = "#c084fc", bold = true })
+	vim.api.nvim_set_hl(0, "CodeReviewFile", { fg = "#22d3ee", bold = true })
+	vim.api.nvim_set_hl(0, "CodeReviewId", { fg = "#fb923c", bold = true })
+	vim.api.nvim_set_hl(0, "CodeReviewLine", { fg = "#60a5fa" })
+	vim.api.nvim_set_hl(0, "CodeReviewNote", { fg = normal_fg })
+	vim.api.nvim_set_hl(0, "CodeReviewMuted", { fg = muted })
+	vim.api.nvim_set_hl(0, "CodeReviewArchived", { fg = muted, italic = true })
+	vim.api.nvim_set_hl(0, "CodeReviewKey", { fg = "#c084fc", bold = true })
+	vim.api.nvim_set_hl(0, "CodeReviewHint", { fg = muted })
 	for _, item in ipairs(config.categories) do
 		local group = "CodeReviewCategory" .. item.id:gsub("[^%w]", "")
-		vim.api.nvim_set_hl(0, group, { fg = item.color or "#d1d5db", bold = true })
+		vim.api.nvim_set_hl(0, group, { fg = item.color or normal_fg, bold = true })
 	end
 end
 
@@ -286,16 +340,32 @@ end
 
 local function open_comment_editor(opts, callback)
 	opts = opts or {}
-	local buf = vim.api.nvim_create_buf(false, true)
+	-- Use a normal, named buffer and assign its filetype only after the float is
+	-- visible. FileType consumers (completion, Treesitter, render-markdown, and
+	-- language servers) can then attach exactly as they do to a regular editor.
+	local buf = vim.api.nvim_create_buf(false, false)
 	local lines = vim.split(opts.default or "", "\n", { plain = true })
 	if #lines == 0 then
 		lines = { "" }
 	end
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-	vim.bo[buf].buftype = "nofile"
 	vim.bo[buf].bufhidden = "wipe"
 	vim.bo[buf].swapfile = false
-	vim.bo[buf].filetype = "markdown"
+	local virtual_name = string.format("review-%s-%d.md", opts.id or "new", buf)
+	vim.api.nvim_buf_set_name(buf, vim.fs.joinpath(root(), ".pi-review-comments", virtual_name))
+
+	local category_position
+	local selected_category = type(opts.category) == "string" and categories_by_id[opts.category] or opts.category
+	if opts.category_editable and #config.categories > 0 then
+		for index, item in ipairs(config.categories) do
+			if item == selected_category or (selected_category and item.id == selected_category.id) then
+				category_position = index
+				break
+			end
+		end
+		category_position = category_position or 1
+		selected_category = config.categories[category_position]
+	end
 
 	local width = math.min(math.max(60, math.floor(vim.o.columns * 0.65)), vim.o.columns - 4)
 	local height = math.min(math.max(10, #lines + 4), math.max(4, vim.o.lines - 6))
@@ -311,10 +381,40 @@ local function open_comment_editor(opts, callback)
 		border = "rounded",
 		title = " " .. (opts.title or "Review comment") .. " ",
 		title_pos = "center",
+		zindex = opts.zindex or 70,
 	})
 	vim.wo[win].wrap = true
 	vim.wo[win].linebreak = true
-	vim.wo[win].winbar = "%#Comment#  <C-s> save   <C-c> cancel"
+	vim.bo[buf].filetype = "review-comment"
+	vim.bo[buf].syntax = "markdown"
+	vim.bo[buf].modified = false
+
+	local function update_winbar()
+		if not vim.api.nvim_win_is_valid(win) then
+			return
+		end
+		local category_label = ""
+		if category_position and selected_category then
+			category_label = string.format(
+				"   <C-p>/<C-n> category: %s %s",
+				selected_category.icon or "",
+				selected_category.label or selected_category.id
+			)
+		end
+		vim.wo[win].winbar =
+			string.format("%%#Comment#  <C-s> save   <C-c> cancel%s", category_label:gsub("%%", "%%%%"))
+	end
+
+	local function cycle_category(offset)
+		if not category_position then
+			return
+		end
+		category_position = ((category_position - 1 + offset) % #config.categories) + 1
+		selected_category = config.categories[category_position]
+		update_winbar()
+	end
+
+	update_winbar()
 
 	local finished = false
 	local function close(value)
@@ -326,21 +426,33 @@ local function open_comment_editor(opts, callback)
 			vim.api.nvim_win_close(win, true)
 		end
 		if value ~= nil then
-			callback(value)
+			callback(value, selected_category)
 		end
 	end
 	local function save_comment()
 		local value = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n")
+		vim.bo[buf].modified = false
 		close(vim.trim(value))
 	end
 
-	vim.keymap.set({ "n", "i" }, "<C-s>", save_comment, { buffer = buf, silent = true, desc = "Save review comment" })
+	vim.api.nvim_create_autocmd("BufWriteCmd", {
+		buffer = buf,
+		callback = save_comment,
+		desc = "Save the review comment without creating its virtual Markdown file",
+	})
+	vim.keymap.set({ "n", "i" }, "<C-s>", save_comment, { buffer = buf, silent = true, desc = "Save review issue" })
+	vim.keymap.set({ "n", "i" }, "<C-n>", function()
+		cycle_category(1)
+	end, { buffer = buf, silent = true, desc = "Next review category" })
+	vim.keymap.set({ "n", "i" }, "<C-p>", function()
+		cycle_category(-1)
+	end, { buffer = buf, silent = true, desc = "Previous review category" })
 	vim.keymap.set("n", "q", function()
 		close(nil)
-	end, { buffer = buf, silent = true, desc = "Cancel review comment" })
+	end, { buffer = buf, silent = true, desc = "Cancel review edit" })
 	vim.keymap.set({ "n", "i" }, "<C-c>", function()
 		close(nil)
-	end, { buffer = buf, silent = true, desc = "Cancel review comment" })
+	end, { buffer = buf, silent = true, desc = "Cancel review edit" })
 
 	vim.api.nvim_win_set_cursor(win, { #lines, #(lines[#lines] or "") })
 	vim.cmd("startinsert!")
@@ -391,34 +503,103 @@ function M.add()
 
 	vim.ui.select(config.categories, {
 		prompt = "Review category",
-		format_item = function(item)
-			return (item.icon or "") .. " " .. item.label .. " — " .. (item.description or "")
-		end,
+		kind = "pi_review_category",
+		format_item = format_category_item,
 	}, function(selected_category)
 		if not selected_category then
 			return
 		end
-		open_comment_editor({ title = selected_category.label .. " comment" }, function(note)
+		open_comment_editor({
+			title = "Add review issue",
+			id = sequence + 1,
+			category = selected_category,
+			category_editable = true,
+		}, function(note, edited_category)
 			if not vim.api.nvim_buf_is_valid(buf) then
 				return
 			end
 
-			local mark = add_mark(buf, start_line, end_line, note, selected_category.id)
+			local final_category = edited_category or selected_category
+			local mark = add_mark(buf, start_line, end_line, note, final_category.id)
 			if needs_snapshot then
 				mark.snapshot = snapshot_buffer(buf, start_line, end_line)
 				save()
 			end
-			vim.notify(selected_category.label .. " review #" .. mark.id .. " added", vim.log.levels.INFO)
+			vim.notify(final_category.label .. " review #" .. mark.id .. " added", vim.log.levels.INFO)
 		end)
 	end)
+end
+
+local function is_floating_window(win)
+	if not win or not vim.api.nvim_win_is_valid(win) then
+		return false
+	end
+	return vim.api.nvim_win_get_config(win).relative ~= ""
+end
+
+local function is_source_window(win)
+	if not win or not vim.api.nvim_win_is_valid(win) or is_floating_window(win) then
+		return false
+	end
+	local ft = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
+	return not ft:match("^pi%-") and ft ~= "review-list"
+end
+
+local function preferred_source_window(current_win)
+	if is_source_window(current_win) then
+		return current_win
+	end
+	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+		if is_source_window(win) then
+			return win
+		end
+	end
+	return nil
+end
+
+local function hide_floating_pi()
+	pcall(function()
+		local session = require("pi.sessions.manager").get()
+		if session and session.chat:is_visible() and session.chat:layout() == "float" then
+			session.chat:hide()
+		end
+	end)
+end
+
+local function close_floating_review_list()
+	if not list.buf or not vim.api.nvim_buf_is_valid(list.buf) then
+		return
+	end
+	local win = vim.fn.bufwinid(list.buf)
+	if win ~= -1 and is_floating_window(win) then
+		vim.api.nvim_win_close(win, true)
+	end
 end
 
 local function jump(mark)
 	if not mark or not vim.api.nvim_buf_is_valid(mark.buf) then
 		return
 	end
-	vim.api.nvim_set_current_buf(mark.buf)
-	vim.api.nvim_win_set_cursor(0, { mark_line(mark), 0 })
+
+	local current_win = vim.api.nvim_get_current_win()
+	local destination = vim.api.nvim_get_current_buf() == list.buf and list.source_win or current_win
+
+	-- A floating review list or Pi chat would otherwise cover the destination.
+	-- Side layouts remain visible and navigation uses the normal source window.
+	close_floating_review_list()
+	hide_floating_pi()
+
+	if not is_source_window(destination) then
+		destination = preferred_source_window(vim.api.nvim_get_current_win())
+	end
+	if not destination then
+		vim.notify("No source window available for the review issue", vim.log.levels.WARN)
+		return
+	end
+
+	vim.api.nvim_set_current_win(destination)
+	vim.api.nvim_win_set_buf(destination, mark.buf)
+	vim.api.nvim_win_set_cursor(destination, { mark_line(mark), 0 })
 	vim.cmd("normal! zz")
 end
 
@@ -562,6 +743,30 @@ local function jump_from_list()
 	jump(mark)
 end
 
+local function select_over_review_list(items, opts, callback)
+	local list_win = list.buf and vim.fn.bufwinid(list.buf) or -1
+	local original_zindex
+	if list_win ~= -1 and is_floating_window(list_win) then
+		original_zindex = vim.api.nvim_win_get_config(list_win).zindex or 50
+		vim.api.nvim_win_set_config(list_win, { zindex = 40 })
+	end
+
+	local function restore_list()
+		if original_zindex and vim.api.nvim_win_is_valid(list_win) then
+			vim.api.nvim_win_set_config(list_win, { zindex = original_zindex })
+		end
+	end
+
+	local ok, err = pcall(vim.ui.select, items, opts, function(choice, index)
+		restore_list()
+		callback(choice, index)
+	end)
+	if not ok then
+		restore_list()
+		error(err)
+	end
+end
+
 local function confirm_archive(filter, label)
 	local targets = {}
 	for _, mark in ipairs(marks) do
@@ -574,7 +779,7 @@ local function confirm_archive(filter, label)
 		return
 	end
 
-	vim.ui.select({ "Archive", "Cancel" }, {
+	select_over_review_list({ "Archive", "Cancel" }, {
 		prompt = "Archive " .. #targets .. " " .. label .. "?",
 	}, function(choice)
 		if choice ~= "Archive" then
@@ -595,7 +800,29 @@ local function setup_list_buffer(buf)
 		vim.keymap.set(modes, key, action, { buffer = buf, silent = true, desc = desc })
 	end
 
+	local function show_help()
+		vim.notify(
+			table.concat({
+				"<CR>      Jump to issue",
+				"<Space>   Select issue",
+				"x         Toggle fixed",
+				"e         Edit comment and category",
+				"t         Change category only",
+				"a / u     Archive / restore",
+				"A / F     Archive all / all fixed",
+				"i         Show archived",
+				"y         Copy open issues for AI",
+				"r         Refresh",
+				"q         Close",
+			}, "\n"),
+			vim.log.levels.INFO,
+			{ title = "Code Review keys" }
+		)
+	end
+
 	map("n", "<CR>", jump_from_list, "Review: jump to issue")
+	map("n", "?", show_help, "Review: show key help")
+	map("n", "g?", show_help, "Review: show key help")
 	map({ "n", "x" }, "<Space>", toggle_list_selection, "Review: select issue")
 	map({ "n", "x" }, "x", function()
 		apply_list_action(function(mark)
@@ -605,7 +832,7 @@ local function setup_list_buffer(buf)
 	end, "Review: toggle selected completion")
 	map("n", "e", function()
 		M.edit_comment()
-	end, "Review: edit comment")
+	end, "Review: edit issue")
 	map({ "n", "x" }, "t", function()
 		M.change_category()
 	end, "Review: change selected category")
@@ -660,13 +887,28 @@ render_list = function()
 		end
 	end
 
-	local lines = {
-		string.format("Code Review  %d open  %d fixed  %d archived", open_count, fixed_count, archived_count),
-		"<CR> jump  <Space> select  x complete  e comment  t type  a archive  u restore  A all  F fixed  i archived  y copy  q close",
-		"",
-	}
-	local file_rows = {}
+	local lines = {}
+	local row_decorations = {}
+	local selected_rows = {}
 	list.row_marks = {}
+
+	local function add_decorated_line(chunks)
+		local parts = {}
+		local spans = {}
+		local col = 0
+		for _, chunk in ipairs(chunks) do
+			local text, hl = chunk[1], chunk[2]
+			parts[#parts + 1] = text
+			if hl and text ~= "" then
+				spans[#spans + 1] = { start_col = col, end_col = col + #text, hl = hl }
+			end
+			col = col + #text
+		end
+		lines[#lines + 1] = table.concat(parts)
+		row_decorations[#lines] = spans
+		return #lines
+	end
+
 	local current_file
 	for _, mark in ipairs(visible_list_marks()) do
 		local file = list_file_name(mark)
@@ -675,27 +917,81 @@ render_list = function()
 				lines[#lines + 1] = ""
 			end
 			current_file = file
-			lines[#lines + 1] = "▾ " .. file
-			file_rows[#file_rows + 1] = #lines
+			add_decorated_line({
+				{ "  ▾  ", "CodeReviewFileIcon" },
+				{ file, "CodeReviewFile" },
+			})
 		end
 
-		local selected = list.selected[mark.id] and "●" or " "
-		local status = mark.archived and "A" or (mark.resolved and "✓" or " ")
+		local is_selected = list.selected[mark.id] == true
+		local status = mark.archived and "ARCH " or (mark.resolved and "FIXED" or "OPEN ")
+		local status_hl = mark.archived and "CodeReviewArchived"
+			or (mark.resolved and "CodeReviewFixed" or "CodeReviewOpen")
 		local start_line = mark_line(mark)
 		local end_line = mark_end_line(mark)
 		local range = end_line ~= start_line and (start_line .. "-" .. end_line) or tostring(start_line)
-		local note = mark.note and mark.note ~= "" and mark.note or "(no comment)"
-		lines[#lines + 1] =
-			string.format(" %s [%s] %-16s #%d L%s  %s", selected, status, category_text(mark), mark.id, range, note)
-		list.row_marks[#lines] = mark
+		local note = comment_summary(mark.note)
+		note = note ~= "" and note or "(no comment)"
+		local category_label = category_text(mark)
+		local category_padding = string.rep(" ", math.max(1, 18 - vim.fn.strdisplaywidth(category_label)))
+		local archived_hl = mark.archived and "CodeReviewArchived" or nil
+		local row = add_decorated_line({
+			{ "  ", nil },
+			{ is_selected and "●" or " ", is_selected and "CodeReviewSelected" or nil },
+			{ "  ", nil },
+			{ status, status_hl },
+			{ "  ", nil },
+			{ category_label, archived_hl or category_hl(mark) },
+			{ category_padding, nil },
+			{ "#" .. mark.id, archived_hl or "CodeReviewId" },
+			{ "  L" .. range, archived_hl or "CodeReviewLine" },
+			{ "  " .. note, archived_hl or "CodeReviewNote" },
+		})
+		list.row_marks[row] = mark
+		selected_rows[row] = is_selected
 	end
-	if #lines == 3 then
-		lines[#lines + 1] = list.show_archived and "No review issues"
-			or "No active review issues (press i for archived)"
+	if #lines == 0 then
+		add_decorated_line({
+			{
+				list.show_archived and "  No review issues"
+					or "  No active review issues — press i to include archived",
+				"CodeReviewHint",
+			},
+		})
 	end
 
 	local cursor = 1
 	local win = vim.fn.bufwinid(list.buf)
+	if win ~= -1 and is_floating_window(win) then
+		vim.api.nvim_win_set_config(win, {
+			title = {
+				{ " 󰚩 Code Review ", "CodeReviewTitle" },
+				{ "· ", "CodeReviewMuted" },
+				{ tostring(open_count), "CodeReviewOpen" },
+				{ " open · ", "CodeReviewMuted" },
+				{ tostring(fixed_count), "CodeReviewFixed" },
+				{ " fixed · ", "CodeReviewMuted" },
+				{ tostring(archived_count), "CodeReviewArchived" },
+				{ " archived ", "CodeReviewMuted" },
+			},
+			title_pos = "center",
+			footer = {
+				{ " ↵ ", "CodeReviewKey" },
+				{ "jump · ", "CodeReviewHint" },
+				{ "Space ", "CodeReviewKey" },
+				{ "select · ", "CodeReviewHint" },
+				{ "x ", "CodeReviewKey" },
+				{ "fixed · ", "CodeReviewHint" },
+				{ "e ", "CodeReviewKey" },
+				{ "edit · ", "CodeReviewHint" },
+				{ "? ", "CodeReviewKey" },
+				{ "help · ", "CodeReviewHint" },
+				{ "q ", "CodeReviewKey" },
+				{ "close ", "CodeReviewHint" },
+			},
+			footer_pos = "center",
+		})
+	end
 	if win ~= -1 then
 		cursor = vim.api.nvim_win_get_cursor(win)[1]
 	end
@@ -703,33 +999,25 @@ render_list = function()
 	vim.api.nvim_buf_set_lines(list.buf, 0, -1, false, lines)
 	vim.bo[list.buf].modifiable = false
 	vim.api.nvim_buf_clear_namespace(list.buf, list_ns, 0, -1)
-	vim.api.nvim_buf_add_highlight(list.buf, list_ns, "Title", 0, 0, -1)
-	vim.api.nvim_buf_add_highlight(list.buf, list_ns, "Comment", 1, 0, -1)
-	for _, row in ipairs(file_rows) do
-		vim.api.nvim_buf_add_highlight(list.buf, list_ns, "CodeReviewFile", row - 1, 0, -1)
-	end
-	for row, mark in pairs(list.row_marks) do
-		local hl = list.selected[mark.id] and "CodeReviewSelected"
-			or (mark.archived and "CodeReviewArchived" or (mark.resolved and "CodeReviewFixed" or category_hl(mark)))
-		vim.api.nvim_buf_add_highlight(list.buf, list_ns, hl, row - 1, 0, -1)
+	for row, spans in pairs(row_decorations) do
+		if selected_rows[row] then
+			vim.api.nvim_buf_set_extmark(list.buf, list_ns, row - 1, 0, {
+				line_hl_group = "CodeReviewSelectedLine",
+				priority = 90,
+			})
+		end
+		for _, span in ipairs(spans) do
+			vim.api.nvim_buf_set_extmark(list.buf, list_ns, row - 1, span.start_col, {
+				end_col = span.end_col,
+				hl_group = span.hl,
+				hl_mode = "combine",
+				priority = 110,
+			})
+		end
 	end
 	if win ~= -1 then
 		vim.api.nvim_win_set_cursor(win, { math.min(cursor, #lines), 0 })
 	end
-end
-
-local function preferred_source_window(current_win)
-	local current_ft = vim.bo[vim.api.nvim_win_get_buf(current_win)].filetype
-	if not current_ft:match("^pi%-") and current_ft ~= "review-list" then
-		return current_win
-	end
-	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-		local ft = vim.bo[vim.api.nvim_win_get_buf(win)].filetype
-		if not ft:match("^pi%-") and ft ~= "review-list" then
-			return win
-		end
-	end
-	return current_win
 end
 
 local function repair_pi_prompt_height()
@@ -771,14 +1059,20 @@ function M.select()
 			title_pos = "center",
 			zindex = 60,
 		})
-		vim.wo[win].cursorline = true
-		vim.wo[win].wrap = false
 	else
 		if current_win ~= win then
 			list.source_win = preferred_source_window(current_win)
 		end
 		vim.api.nvim_set_current_win(win)
 	end
+	vim.wo[win].winhighlight = table.concat({
+		"NormalFloat:CodeReviewFloat",
+		"FloatBorder:CodeReviewBorder",
+		"FloatTitle:CodeReviewTitle",
+		"CursorLine:CodeReviewCursorLine",
+	}, ",")
+	vim.wo[win].cursorline = true
+	vim.wo[win].wrap = false
 	render_list()
 end
 
@@ -951,12 +1245,8 @@ local function choose_issue(candidates, prompt, callback)
 	end
 	vim.ui.select(candidates, {
 		prompt = prompt,
-		format_item = function(mark)
-			return category_text(mark)
-				.. " #"
-				.. mark.id
-				.. (mark.note and mark.note ~= "" and (" — " .. mark.note) or "")
-		end,
+		kind = "pi_review_issue",
+		format_item = format_issue_item,
 	}, function(mark)
 		if mark then
 			callback(mark)
@@ -975,14 +1265,20 @@ function M.edit_comment()
 
 	choose_issue(candidates, "Edit which review issue?", function(mark)
 		open_comment_editor({
-			title = "Edit " .. category_text(mark) .. " #" .. mark.id,
+			title = "Edit review #" .. mark.id,
+			id = mark.id,
 			default = mark.note or "",
-		}, function(note)
+			category = category(mark),
+			category_editable = true,
+		}, function(note, edited_category)
 			mark.note = note
+			if edited_category then
+				mark.category = edited_category.id
+			end
 			render(mark)
 			save()
 			render_list()
-			vim.notify("Review #" .. mark.id .. " comment updated", vim.log.levels.INFO)
+			vim.notify("Review #" .. mark.id .. " updated", vim.log.levels.INFO)
 		end)
 	end)
 end
@@ -992,11 +1288,10 @@ local function pick_category(targets)
 		vim.notify("No review issues selected", vim.log.levels.INFO)
 		return
 	end
-	vim.ui.select(config.categories, {
+	select_over_review_list(config.categories, {
 		prompt = "Change review category",
-		format_item = function(item)
-			return (item.icon or "") .. " " .. item.label .. " — " .. (item.description or "")
-		end,
+		kind = "pi_review_category",
+		format_item = format_category_item,
 	}, function(selected_category)
 		if not selected_category then
 			return
@@ -1008,8 +1303,9 @@ local function pick_category(targets)
 		list.selected = {}
 		save()
 		render_list()
+		local category_word = #targets == 1 and "category" or "categories"
 		vim.notify(
-			"Changed " .. #targets .. " review issue type(s) to " .. selected_category.label,
+			"Changed " .. #targets .. " review issue " .. category_word .. " to " .. selected_category.label,
 			vim.log.levels.INFO
 		)
 	end)
@@ -1141,7 +1437,7 @@ function M.setup(opts)
 	end, { desc = "Jump to previous review issue" })
 	vim.api.nvim_create_user_command("ReviewList", M.select, { desc = "Open grouped review issue list" })
 	vim.api.nvim_create_user_command("ReviewQuickfix", M.quickfix, { desc = "Open review issues in quickfix" })
-	vim.api.nvim_create_user_command("ReviewEdit", M.edit_comment, { desc = "Edit review comment at cursor" })
+	vim.api.nvim_create_user_command("ReviewEdit", M.edit_comment, { desc = "Edit review issue at cursor" })
 	vim.api.nvim_create_user_command("ReviewType", M.change_category, { desc = "Change review category at cursor" })
 	vim.api.nvim_create_user_command("ReviewFixed", M.toggle_fixed, { desc = "Toggle review issue fixed" })
 	vim.api.nvim_create_user_command(

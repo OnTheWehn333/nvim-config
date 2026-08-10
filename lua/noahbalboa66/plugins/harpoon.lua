@@ -18,15 +18,15 @@ return {
 
 		vim.keymap.set("n", "<C-h>", function()
 			harpoon:list():select(1)
-		end)
+		end, { desc = "Harpoon file 1" })
 		vim.keymap.set("n", "<C-t>", function()
 			harpoon:list():select(2)
-		end)
+		end, { desc = "Harpoon file 2" })
 		vim.keymap.set("n", "<C-n>", function()
 			harpoon:list():select(3)
-		end)
+		end, { desc = "Harpoon file 3" })
 		vim.keymap.set("n", "<C-s>", function()
 			harpoon:list():select(4)
-		end)
+		end, { desc = "Harpoon file 4" })
 	end,
 }
