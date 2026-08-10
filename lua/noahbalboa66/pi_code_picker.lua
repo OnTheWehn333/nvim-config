@@ -1,5 +1,89 @@
 local M = {}
 
+local language_highlights = {
+	bash = "PiCodeLanguageGreen",
+	c = "PiCodeLanguageBlue",
+	["c++"] = "PiCodeLanguageCyan",
+	cpp = "PiCodeLanguageCyan",
+	csharp = "PiCodeLanguagePurple",
+	cs = "PiCodeLanguagePurple",
+	css = "PiCodeLanguageBlue",
+	go = "PiCodeLanguageCyan",
+	html = "PiCodeLanguageRed",
+	java = "PiCodeLanguageOrange",
+	javascript = "PiCodeLanguageYellow",
+	js = "PiCodeLanguageYellow",
+	json = "PiCodeLanguageYellow",
+	jsx = "PiCodeLanguageYellow",
+	kotlin = "PiCodeLanguagePurple",
+	lua = "PiCodeLanguageBlue",
+	markdown = "PiCodeLanguageGreen",
+	md = "PiCodeLanguageGreen",
+	python = "PiCodeLanguageYellow",
+	py = "PiCodeLanguageYellow",
+	ruby = "PiCodeLanguageRed",
+	rust = "PiCodeLanguageOrange",
+	sh = "PiCodeLanguageGreen",
+	sql = "PiCodeLanguagePurple",
+	swift = "PiCodeLanguageOrange",
+	text = "PiCodeLanguageMuted",
+	toml = "PiCodeLanguageOrange",
+	tsx = "PiCodeLanguageCyan",
+	typescript = "PiCodeLanguageCyan",
+	ts = "PiCodeLanguageCyan",
+	xml = "PiCodeLanguageRed",
+	yaml = "PiCodeLanguagePink",
+	yml = "PiCodeLanguagePink",
+}
+
+local fallback_language_highlights = {
+	"PiCodeLanguageBlue",
+	"PiCodeLanguagePurple",
+	"PiCodeLanguageYellow",
+	"PiCodeLanguageOrange",
+	"PiCodeLanguageRed",
+	"PiCodeLanguagePink",
+	"PiCodeLanguageCyan",
+	"PiCodeLanguageGreen",
+}
+
+local function language_highlight(language)
+	local highlight = language_highlights[language]
+	if highlight then
+		return highlight
+	end
+
+	local hash = 0
+	for index = 1, #language do
+		hash = hash + language:byte(index)
+	end
+	return fallback_language_highlights[(hash % #fallback_language_highlights) + 1]
+end
+
+local function setup_highlights()
+	local colors = {
+		PiCodeLanguageBlue = "#60a5fa",
+		PiCodeLanguagePurple = "#c084fc",
+		PiCodeLanguageYellow = "#fbbf24",
+		PiCodeLanguageOrange = "#fb923c",
+		PiCodeLanguageRed = "#f87171",
+		PiCodeLanguagePink = "#fb7185",
+		PiCodeLanguageCyan = "#22d3ee",
+		PiCodeLanguageGreen = "#34d399",
+		PiCodeLanguageMuted = "#565f89",
+	}
+	for group, color in pairs(colors) do
+		vim.api.nvim_set_hl(0, group, { fg = color, bold = true })
+	end
+	vim.api.nvim_set_hl(0, "PiCodeLineCount", { fg = "#7aa2f7" })
+end
+
+setup_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", {
+	group = vim.api.nvim_create_augroup("PiCodePickerColors", { clear = true }),
+	callback = setup_highlights,
+})
+
 local filetype_aliases = {
 	bash = "sh",
 	["c++"] = "cpp",
@@ -259,8 +343,10 @@ local function show_picker(snippets)
 			return items
 		end,
 		format = function(item)
+			local line_label = string.format("%3dL", item.line_count or 0)
 			return {
-				{ string.format("%-13s", "[" .. item.language .. "]"), "Special" },
+				{ string.format("%-13s", "[" .. item.language .. "]"), language_highlight(item.language) },
+				{ line_label .. "  ", "PiCodeLineCount" },
 				{ item.summary },
 			}
 		end,
