@@ -584,6 +584,12 @@ return {
 		vim.api.nvim_create_autocmd("FileType", {
 			pattern = vim.tbl_keys(pi_filetypes),
 			callback = function(event)
+				-- Pi rewrites its rendered history buffer during session changes and
+				-- streaming. Smooth-scroll animations can retain stale line positions.
+				if vim.bo[event.buf].filetype == "pi-chat-history" then
+					vim.b[event.buf].snacks_scroll = false
+				end
+
 				local root = normalize_dir(tab_pi_root())
 				if root then
 					set_win_cwd(vim.fn.bufwinid(event.buf), root)

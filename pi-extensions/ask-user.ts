@@ -79,6 +79,9 @@ export default function askUser(pi: ExtensionAPI) {
       "Ask the user a question through the built-in attention-compatible UI",
     promptGuidelines: [
       "Use ask_user instead of asking a question in plain text when the answer is needed to continue.",
+      "When ask_user asks the user to run a command, first show that command " +
+        "in the normal assistant response as a fenced Markdown code block so it is " +
+        "easy to copy; never leave the command only in the ask_user question.",
       "Set ask_user multiple to true when more than one option may be selected; otherwise choices are single-select.",
       "Treat ask_user choices as suggestions: the user can respond with context without selecting any option.",
       "Omit ask_user options for a free-form answer. Every question also provides an optional additional-context field.",

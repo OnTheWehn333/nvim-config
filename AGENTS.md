@@ -45,7 +45,7 @@ Note: Some files may be in the root or under lua/noahbalboa66 depending on the m
    - ~/.config/nvim or set $XDG_CONFIG_HOME.
 2. Start Neovim. Lazy.nvim will prompt to install plugins automatically (or run `:Lazy sync`).
 3. Run `:checkhealth lazy` and `:checkhealth vim.lsp`.
-4. Install language servers and developer tools through the Nix/Home Manager configuration; Mason is not used.
+4. Install language servers and developer tools through the Nix/Home Manager configuration. Mason is available only as a searchable registry browser via `:Mason`; it does not manage tools.
 5. Run formatting as needed; Conform is configured for format-on-save (see `lua/noahbalboa66/plugins/conform.lua`).
 
 Helpful commands:
@@ -76,7 +76,7 @@ Conventions for adding a plugin:
 ## Language Server Protocol (LSP) and formatters
 
 - LSP servers are configured in `lua/noahbalboa66/lsp.lua` with `vim.lsp.config()` and `vim.lsp.enable()`.
-- Language-server and formatter executables are provided by Nix/PATH; Mason is not used.
+- Language-server and formatter executables are provided by Nix/PATH. Mason is only a searchable registry browser and must not be configured to install tools.
 - Roslyn is the sole C# language server; do not enable OmniSharp concurrently.
 - Native LSP owns contextual actions, while Snacks owns picker/list workflows.
 - Formatters are handled via Conform and language-specific formatters are chained where appropriate (e.g., Python: isort -> Black).
@@ -174,6 +174,7 @@ Best practices:
 - 2025-08-07 — Removed Telescope configuration: renamed lua/noahbalboa66/plugins/telescope.lua to lua/noahbalboa66/plugins/telescope.lua.bak, replaced lua/noahbalboa66/plugins/telescope.lua and lua/noahbalboa66/plugins/recent-files.lua with minimal plugin specs (return {}), and removed Telescope-only helpers from lua/noahbalboa66/utils.lua.
 - 2025-08-08 — Deleted telescope backup and empty plugin files: lua/noahbalboa66/plugins/telescope.lua.bak and lua/noahbalboa66/plugins/telescope.lua were removed from the repo.
 - 2026-08-07 — Consolidated LSP UX around native Neovim and Snacks, removed Lspsaga/Trouble/Mason/Telescope, made Nix the tool provider, and standardized modern LSP mappings and capabilities.
+- 2026-08-10 — Restored standalone Mason as a registry browser while keeping all tool installation under Nix.
 
 ---
 

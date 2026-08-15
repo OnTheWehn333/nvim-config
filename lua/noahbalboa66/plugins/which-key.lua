@@ -7,6 +7,6 @@ return {
 	end,
 	opts = {},
 	keys = {
-		{ "<leader>w", "<cmd>WhichKey<CR>", desc = "Open Which Key" },
+		{ "<leader>W", "<cmd>WhichKey<CR>", desc = "Open Which Key" },
 	},
 }

@@ -42,7 +42,7 @@ set(
 )
 set("n", "<leader>xf", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make file executable" })
 
-set("n", "<leader>wh", function()
+set("n", "<leader>Rh", function()
 	local total_height = vim.o.lines
 	local current_height = vim.api.nvim_win_get_height(0)
 	local isSmall = (current_height <= math.floor(total_height * 0.5))
@@ -58,7 +58,7 @@ set("n", "<leader>h=", function()
 	vim.cmd("resize " .. math.floor(total_height * 0.5))
 end, { desc = "resize to 1/2 vertically" })
 
-set("n", "<leader>wv", function()
+set("n", "<leader>Rw", function()
 	local total_width = vim.o.columns
 	local current_width = vim.api.nvim_win_get_width(0)
 	local isSmall = (current_width <= math.floor(total_width * 0.5))
@@ -69,7 +69,7 @@ set("n", "<leader>wv", function()
 	end
 end, { desc = "toggle resize to 1/4:3/4 horizontally" })
 
-set("n", "<leader>w=", function()
+set("n", "<leader>R=", function()
 	local total_width = vim.o.columns
 	vim.cmd("vertical resize " .. math.floor(total_width * 0.5))
 end, { desc = "resize to 1/2 horizontally" })

@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### LSP and Language Servers
 
-- **Install Language Servers**: Add executables to the Nix/Home Manager configuration; Mason is not used
+- **Install Language Servers**: Add executables to the Nix/Home Manager configuration; Mason is only a searchable registry browser (`:Mason`) and does not manage tools
 - **LSP Info**: `:LspInfo` - Shows attached LSP servers for the current buffer
 - **LSP Health**: `:checkhealth vim.lsp` - Checks enabled configurations and active clients
 - **Format Code**: `<leader>f` - Manual formatting with Conform
@@ -27,6 +27,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `<leader>ha` - Add file to Harpoon
   - `<leader>hm` - Harpoon quick menu
   - `<C-h>`, `<C-t>`, `<C-n>`, `<C-s>` - Jump to Harpoon files 1-4
+- **Key Guide**: `<leader>W` - Open Which-Key
 - **Git Operations**: `<leader>gg` - LazyGit interface
 
 ## Configuration Architecture
@@ -51,6 +52,7 @@ lua/noahbalboa66/
     ├── snacks.lua       # Pickers, explorer, notifications, and utilities
     ├── harpoon.lua      # Quick file navigation
     ├── lspconfig.lua    # nvim-lspconfig plugin declaration
+    ├── mason.lua        # Searchable tool registry UI (no managed packages)
     ├── conform.lua      # Code formatting
     ├── roslyn.lua       # C# Roslyn integration
     └── [40+ other plugins]
@@ -95,7 +97,6 @@ lua/noahbalboa66/
 
 - **Leader Key**: Space (`" "`) for most custom commands
 - **Window Management**: Custom resize functions for split management
-- **Tmux Integration**: Seamless navigation between Neovim and tmux panes
 - **Terminal Integration**: Uses 'zsh' as terminal emulator
 
 ### Performance Optimizations
@@ -108,7 +109,7 @@ lua/noahbalboa66/
 ### Special Considerations
 
 - **LSP Setup**: Uses Neovim's modern `vim.lsp.config()`/`vim.lsp.enable()` APIs
-- **Dependency Ownership**: Language servers, formatters, debuggers, and runtimes come from Nix/PATH, not Mason
+- **Dependency Ownership**: Language servers, formatters, debuggers, and runtimes come from Nix/PATH; Mason is retained only for browsing its registry
 - **C#**: roslyn.nvim enables Roslyn; running OmniSharp concurrently causes duplicate clients
 - **Format Chain**: Some languages use multiple formatters in sequence (Python: isort → Black)
 - **Git Root Detection**: Custom functions in utils.lua support project-aware commands
