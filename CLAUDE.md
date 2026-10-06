@@ -21,6 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Run `nvim --headless -u NONE -l scripts/test-pi-review.lua` from the repository root to test review restoration and navigation with isolated temporary stores.
 - Check Lua formatting with `stylua --check lua/noahbalboa66/pi_review.lua scripts/test-pi-review.lua`.
+- Run `nvim --headless -u NONE -l scripts/test-clipboard.lua` to check native clipboard selection locally and OSC 52 output under SSH or WSL.
 
 ### Development Tools
 
@@ -104,6 +105,7 @@ lua/noahbalboa66/
 - **Leader Key**: Space (`" "`) for most custom commands
 - **Window Management**: Custom resize functions for split management
 - **Terminal Integration**: Uses 'zsh' as terminal emulator
+- Clipboard copies under SSH or WSL use OSC 52 to reach the client terminal. Every nested tmux server must allow application clipboard requests with `set -s set-clipboard on`. Local sessions outside WSL keep native provider detection. OSC 52 reads may time out through tmux; use the terminal's paste shortcut to paste from the client clipboard.
 
 ### Performance Optimizations
 

@@ -1,3 +1,14 @@
+-- Windows SSH does not pass its SSH variables into WSL. Use the terminal
+-- clipboard there too, rather than WSLg's wl-copy clipboard on the remote PC.
+if vim.env.SSH_TTY or vim.env.SSH_CONNECTION or vim.env.WSL_DISTRO_NAME then
+	local osc52 = require("vim.ui.clipboard.osc52")
+	vim.g.clipboard = {
+		name = "OSC 52",
+		copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
+		paste = { ["+"] = osc52.paste("+"), ["*"] = osc52.paste("*") },
+	}
+end
+
 vim.opt.guicursor = ""
 
 vim.opt.mouse = "a"
