@@ -17,6 +17,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **LSP Health**: `:checkhealth vim.lsp` - Checks enabled configurations and active clients
 - **Format Code**: `<leader>f` - Manual formatting with Conform
 
+### Regression tests
+
+- Run `nvim --headless -u NONE -l scripts/test-pi-review.lua` from the repository root to test review restoration and navigation with isolated temporary stores.
+- Check Lua formatting with `stylua --check lua/noahbalboa66/pi_review.lua scripts/test-pi-review.lua`.
+
 ### Development Tools
 
 - **File Navigation**:
@@ -66,6 +71,7 @@ lua/noahbalboa66/
 4. **Git Integration**: Gitsigns + Fugitive + LazyGit + Diffview + Octo (GitHub)
 5. **AI Tools**: Pi coding-agent chat/review workflows + opencode integration
    - Pi launched by Neovim replaces the terminal-only rich question form with `pi-extensions/ask-user.ts`; its attention-queued dialog keeps hover separate from committed choices, supports single/multiple selection, and submits the answer plus optional additional context together. Press `Esc` from the question to hide it without answering, then `<leader>pa` to restore it with its current selections and text intact.
+   - Review notes with stale line ranges remain in the review list and store but have no inline annotation. Navigation clamps the cursor to an existing line without rewriting the saved location.
    - `<leader>pv` / `:PiCode` opens a compact, newest-first Snacks picker for fenced code in the active Pi branch. It starts in Normal mode on the results list: `y` yanks the whole block and closes, Enter focuses the right preview for visually selecting and yanking a subset, and `i` focuses the fuzzy-search input when filtering is needed.
 
 ### Language Support
@@ -110,6 +116,6 @@ lua/noahbalboa66/
 
 - **LSP Setup**: Uses Neovim's modern `vim.lsp.config()`/`vim.lsp.enable()` APIs
 - **Dependency Ownership**: Language servers, formatters, debuggers, and runtimes come from Nix/PATH; Mason is retained only for browsing its registry
-- **C#**: roslyn.nvim enables Roslyn; running OmniSharp concurrently causes duplicate clients
+- **C#**: roslyn.nvim enables Roslyn; running OmniSharp concurrently causes duplicate clients. `lua/noahbalboa66/lsp.lua` uses stdio without daemon mode because the Nix-provided Roslyn 5.7 rejects `--daemon-mode`.
 - **Format Chain**: Some languages use multiple formatters in sequence (Python: isort → Black)
 - **Git Root Detection**: Custom functions in utils.lua support project-aware commands

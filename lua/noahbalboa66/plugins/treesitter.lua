@@ -74,7 +74,29 @@ return {
 	config = function()
 		local ts = require("nvim-treesitter")
 
+		local function wait_for_parser_task(task, action)
+			local ok, result = task:pwait()
+			if ok and result ~= false then
+				return true
+			end
+
+			vim.schedule(function()
+				vim.notify(
+					("Tree-sitter could not %s the Vim parser: %s"):format(action, tostring(result)),
+					vim.log.levels.WARN
+				)
+			end)
+			return false
+		end
+
 		ts.setup()
+
+		-- Noice uses the Vim parser to highlight Ex commands. Synchronize it with
+		-- nvim-treesitter's queries before Noice loads to avoid version mismatches.
+		if wait_for_parser_task(ts.install("vim"), "install") then
+			wait_for_parser_task(ts.update("vim"), "update")
+		end
+
 		ts.install(treesitter_languages)
 
 		local treesitter_group = vim.api.nvim_create_augroup("Noahbalboa66Treesitter", { clear = true })

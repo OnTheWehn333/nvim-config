@@ -75,6 +75,13 @@ vim.lsp.enable({
 })
 
 vim.lsp.config("roslyn", {
+	-- Nix's Roslyn 5.7 does not support roslyn.nvim's default --daemon-mode.
+	cmd = {
+		"Microsoft.CodeAnalysis.LanguageServer",
+		"--stdio",
+		"--clientProcessId",
+		tostring(vim.uv.os_getpid()),
+	},
 	settings = {
 		["csharp|background_analysis"] = {
 			dotnet_analyzer_diagnostics_scope = "fullSolution",

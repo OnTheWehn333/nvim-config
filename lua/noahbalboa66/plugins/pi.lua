@@ -58,28 +58,44 @@ local function sync_pi_window_cwds(root)
 	end
 end
 
-local function with_pi_cwd(fn)
+local function setup_pi_process_cwd()
+	local cli = require("pi.cli")
+	if cli._noah_process_cwd then
+		return
+	end
+
+	-- pi.nvim starts RPC jobs in Neovim's effective cwd. Wrap only the child
+	-- process so selecting a Pi root never requires changing a source window's
+	-- local cwd (which can also leak through saved sessions).
+	local command = cli.command
+	cli.command = function()
+		local cmd = command()
+		local root = normalize_dir(tab_pi_root())
+		if not root then
+			return cmd
+		end
+
+		local wrapped = {
+			"sh",
+			"-c",
+			'root="$1"; shift; cd "$root" && exec "$@"',
+			"pi.nvim",
+			root,
+		}
+		vim.list_extend(wrapped, cmd)
+		return wrapped
+	end
+
+	cli._noah_process_cwd = true
+end
+
+local function with_pi_root(fn)
 	local root = normalize_dir(tab_pi_root())
 	if not root then
 		return
 	end
 
-	local original_win = vim.api.nvim_get_current_win()
-	local restore_win = original_win
-	local original_cwd = vim.fn.getcwd()
-
-	set_win_cwd(original_win, root)
 	local ok, err = pcall(fn, root)
-	restore_win = vim.api.nvim_get_current_win()
-
-	if vim.api.nvim_win_is_valid(original_win) then
-		vim.api.nvim_set_current_win(original_win)
-		vim.cmd("lcd " .. vim.fn.fnameescape(original_cwd))
-	end
-	if vim.api.nvim_win_is_valid(restore_win) then
-		vim.api.nvim_set_current_win(restore_win)
-	end
-
 	sync_pi_window_cwds(root)
 
 	if not ok then
@@ -89,14 +105,14 @@ end
 
 local function show_pi(opts)
 	opts = opts or {}
-	with_pi_cwd(function()
+	with_pi_root(function()
 		require("pi").show(opts)
 	end)
 end
 
 local function toggle_pi(opts)
 	opts = opts or {}
-	with_pi_cwd(function()
+	with_pi_root(function()
 		require("pi").toggle(opts)
 	end)
 end
@@ -477,6 +493,7 @@ return {
 
 	config = function()
 		local pi = require("pi")
+		setup_pi_process_cwd()
 		setup_compact_pi_tools()
 
 		local ask_user_extension = vim.fs.joinpath(vim.fn.stdpath("config"), "pi-extensions", "ask-user.ts")
@@ -488,7 +505,7 @@ return {
 					"--provider",
 					"openai-codex",
 					"--model",
-					"gpt-5.6-sol",
+					"gpt-6-astra",
 					"--thinking",
 					"high",
 					-- The installed rich-form extension uses ctx.ui.custom(), which
@@ -501,7 +518,7 @@ return {
 				},
 			},
 			models = {
-				{ match = "gpt-5.6-sol", exact = true },
+				{ match = "gpt-6-astra", exact = true },
 			},
 			panels = {
 				history = { title = " 󰚩 π Chat " },

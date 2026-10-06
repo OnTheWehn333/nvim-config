@@ -205,7 +205,11 @@ local function save()
 end
 
 local function render(mark)
-	if type(mark.buf) ~= "number" or not vim.api.nvim_buf_is_valid(mark.buf) then
+	if
+		type(mark.buf) ~= "number"
+		or not vim.api.nvim_buf_is_valid(mark.buf)
+		or not vim.api.nvim_buf_is_loaded(mark.buf)
+	then
 		return
 	end
 
@@ -224,7 +228,16 @@ local function render(mark)
 		return
 	end
 
-	local line = math.max((mark.start_line or 1) - 1, 0)
+	local start_line = mark.start_line or 1
+	local end_line = mark.end_line or start_line
+	local line_count = vim.api.nvim_buf_line_count(mark.buf)
+	-- Files can shrink, and fallback snapshots contain only a selection.
+	-- Keep stale locations in the store instead of moving them to unrelated lines.
+	if start_line < 1 or end_line < start_line or end_line > line_count then
+		return
+	end
+
+	local line = start_line - 1
 	local range = mark.end_line and mark.end_line ~= mark.start_line and (mark.start_line .. "-" .. mark.end_line)
 		or tostring(mark.start_line)
 	local summary = comment_summary(mark.note)
@@ -599,7 +612,8 @@ local function jump(mark)
 
 	vim.api.nvim_set_current_win(destination)
 	vim.api.nvim_win_set_buf(destination, mark.buf)
-	vim.api.nvim_win_set_cursor(destination, { mark_line(mark), 0 })
+	local line = math.max(1, math.min(mark_line(mark), vim.api.nvim_buf_line_count(mark.buf)))
+	vim.api.nvim_win_set_cursor(destination, { line, 0 })
 	vim.cmd("normal! zz")
 end
 
